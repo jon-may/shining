@@ -2,7 +2,7 @@
 title: "First steps"
 ---
 
-Open RStudio and if you have not already done so, install the packages *shiny* and *bslib.*
+Open RStudio and if you have not already done so, install the packages *shiny* and (for later *bslib.*
 
 ![](images/install-shiny.png){fig-alt="install shiny dialogue" width="300"}
 

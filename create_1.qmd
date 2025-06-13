@@ -1,0 +1,72 @@
+---
+title: "Creating an app"
+---
+
+The easiest way to start creating an app is the use the default one, and replace its content with your own.
+
+As an example, we will create an app that asks for a file of data, and then draws a scatterplot and reports a regression. You can then play with it to try out different features.
+
+Before we start, we will need some random data to give the app. Here is some R code you can use to create the data we will begin with - you can paste it into the console:
+
+```         
+library(tidyverse)
+write_csv(tibble(x = rnorm(1000,10,2), y = rnorm(1000,10,2)*.3+.7*x),"random.csv")
+```
+
+This makes a CSV file in your working directory called **random.csv** with 1000 rows, where **x** is a random value with a mean of 10 and a standard deviation of 2, and **y** is another random value that correlates highly with x.
+
+Some of what we will do needs **tidyverse**, so we will need to add this line to the top of the **app.R** file.
+
+```         
+library(tidyverse)
+```
+
+## Edit the input
+
+Return to the default **app.R** (or create a new one) and replace the code that created the slider with code to read in a filename. To do this, delete lines 21 to 25 - everything defining the **sliderInput** - and replace it with this:
+
+```         
+          fileInput("file","Data:")
+```
+
+As you'd expect, this allows the user to Browse to find a file, or to drop a file onto the slot. Notice that both the object's name and label need to be in quotes.
+
+## Edit the output
+
+Delete the lines in **output\$distplot** that create **x,** **bins** and the histogram. You should be left with this:
+
+```         
+server <- function(input, output) {
+
+    output$distPlot <- renderPlot({
+    })
+}
+```
+
+Inside the **renderPlot({...}),** type or paste this code:
+
+```         
+if(!is.null(input$file)){
+         file<-input$file
+         data<-read_csv(file$datapath)
+         data|>ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+       }
+```
+
+When you run the app and drop the random.csv file into the Data slot you should see a scatterplot appear.
+
+Here is what the four lines do:
+
+The **if()** line only runs the code once a file has been chosen, to avoid Errors.\
+**file** is set to the details of the file that has been selected - it is not the file contents yet though!\
+**data** is set to the contents of the file - and as you can see file is an object that contains a component called datapath. **file\$datapath** is actually a pointer to the file on your computer.
+
+The last line draws the scatterplot.
+
+Whatever is computed by the last line in a function is returned as the result of that function, so the scatterplot is rendered as **distPlot** and shown on the **ui**.
+
+If you rerun the code that creates random.csv to get new values (maybe edit the weights of x an y?) then you can drop the new file into the Data slot and get a new scatterplot.
+
+Maybe you could take a moment to edit the title so it does not claim to be Old Faithful Geyser Data.
+
+This code will work on any csv file that contains columns called x and y, and it is a bit fragile, but it's your first real shiny app.

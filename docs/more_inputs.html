@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>First steps – Shining</title>
+<title>More Inputs – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -98,7 +98,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./first_steps.html" aria-current="page"> 
+    <a class="nav-link" href="./first_steps.html"> 
 <span class="menu-text">First steps</span></a>
   </li>  
   <li class="nav-item">
@@ -114,7 +114,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Create an App</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./more_inputs.html"> 
+    <a class="nav-link active" href="./more_inputs.html" aria-current="page"> 
 <span class="menu-text">More Inputs</span></a>
   </li>  
   <li class="nav-item">
@@ -140,7 +140,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">First steps</h1>
+<h1 class="title">More Inputs</h1>
 </div>
 
 
@@ -157,19 +157,31 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Open RStudio and if you have not already done so, install the packages <em>shiny</em> and (for later <em>bslib.</em></p>
-<p><img src="images/install-shiny.png" class="img-fluid" alt="install shiny dialogue" width="300"></p>
-<p>To be tidy, it is best to keep your work in a Project, although you can work with separate files.</p>
-<p>Use the <img src="images/project-button.png" class="img-fluid" width="20"> icon in the RStudio menubar to create a new R project in a new directory, and then select a Shiny Application. Give it a sensible name (best to keep it short and meaningful, without spaces). Check the box to open in a new session.</p>
-<p><img src="images/new-project-dialog.png" class="img-fluid" width="300"></p>
-<p>This will create a new folder, containing your project file and a file named <strong>app.R</strong> - this is where you will write your shiny code. You can rename it, but there is no need. If you asked for a new session, app.R will also open in a new RStudio window.</p>
-<p>At first, app.R contains some demo code. There are some comments, then code to load the library shiny, a chunk to define an object <strong>ui</strong> (the user interface), a chunk to define a function called <strong>server (</strong>the code that creates the objects in ui), and a line that uses the shinyApp function using the ui object and the server function.</p>
-<p><img src="images/default-shiny-code.png" class="img-fluid" width="500"></p>
-<p>In this screen shot I have edited the code a bit to fold it up so that you can see these three chunks. All your shiny apps will follow this basic format - load libraries, ui, the server and shinyApp().</p>
-<p>The default code provided is a runnable shiny app, and you can run it using the <img src="images/run-app.png" class="img-fluid" width="87"> button that has appeared at the top of the editor pane. When you do you should see this:</p>
-<p><img src="images/old-faithful.png" class="img-fluid" width="300"></p>
-<p>That’s it - you’ve made a shiny app! Play with the slider to see the graph update.</p>
-<p>The next steps will be to make it do what you want to do instead of showing the default content.</p>
+<p>Let’s edit the app so that the user can specify the weights of x used to compute y instead of uploading a file.</p>
+<p>First replace the <strong>fileInput()</strong> by a <strong>numericInput()</strong> for x</p>
+<pre><code>numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
+<p>Then replace the three lines that read in the file with one line that creates the data on the fly</p>
+<pre><code>data&lt;-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))</code></pre>
+<p>This makes the <strong>output$distplot</strong> re-run every time you change the value for the weight of X.</p>
+<p><img src="images/random.png" class="img-fluid" width="300"></p>
+<p>If it does not work, then check that your server function looks like this:</p>
+<pre><code>server &lt;- function(input, output) {
+    output$distPlot &lt;- renderPlot({
+         data&lt;-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))
+         data|&gt;ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+    })
+}</code></pre>
+<p>It is quite boring, so lets specify the colour of the points, using a <strong>radioButtons()</strong> and their shape using <strong>selectInput().</strong> Edit the <strong>sidebarPanel</strong> to include these inputs.</p>
+<pre><code>sidebarPanel(
+           numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5),
+           radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
+           selectInput("shape","Point Shape:",choices = c(0:8))
+       ),</code></pre>
+<p>To make these have an effect edit the line in <strong>output$distPlot</strong> that draws the scatterplot so that it becomes:</p>
+<pre><code>         data|&gt;ggplot((aes(x=x, y=y)))+
+            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
+            theme_minimal()</code></pre>
+<p>Notice that because <strong>selectInput()</strong> provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).</p>
 
 
 

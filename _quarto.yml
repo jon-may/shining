@@ -15,6 +15,13 @@ website:
         text: User interface
       - href: server.qmd
         text: Server code
+      - href: create_1.qmd
+        text: Create an App
+      - href: more_inputs.qmd
+        text: More Inputs
+      - href: publish.qmd
+        text: Publishing
+        
         
 
 format:

@@ -1,0 +1,27 @@
+---
+title: "Publishing"
+---
+
+Your app is all very nice, but at the moment it only runs on your computer. To make it generally available to people you have to publish it on a shiny server.
+
+You can publish up to five apps at a time for free on posit's website [shinyapps.io](https://www.shinyapps.io), so follow the link and create yourself an account.
+
+You'll need to think of a name for your account - this will be the first part of the URL for your published app, so keep it short.
+
+Then you'll be shown three steps to follow, but only do 1 and 2.
+
+Step 1 is easy - you just need to install the **rsconnect** package in RStudio.
+
+Step 2 links your RStudio with your shinyapps.io account. You only need to click the lower green button (Copy to clipboard) and then paste into the console.
+
+When you have done this, the ![](images/publish.png){width="89"} button in your Editor pane will let you upload your app.R to the shinyapps.io server.
+
+![](images/publish_dialog.png){width="300"}
+
+When I clicked it, this is what I saw. I had saved two files of random numbers alongside my **app.R** file in the folder **newshinyapp**. I did not want to upload those csv files to the server, so I unchecked the boxes. I have two accounts there, so I selected **jmpersonal.**
+
+Then I clicked **Publish**. When you do this a Deploy pane opens and lots of things happen in red, and it takes a few minutes, but then a browser window will open with your publicly accessible app - here is the URL to mine: [https://jmpersonal.shinyapps.io/newshinyapp)](https://jmpersonal.shinyapps.io/newshinyapp)
+
+If anything goes wrong, then you'll need to inspect your logs on shinyapps.io to see the error code that would normally be in the console. To do this, log into your account, and go to Applications \>\> All. Click the gearwheel icon alongside your app, and select the Logs icon from the menubar. The errors will be logged here, but as with the Console, you might need to think a bit to solve them.
+
+![](images/logs.png)

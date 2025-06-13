@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>First steps – Shining</title>
+<title>Creating an app – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -98,7 +98,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./first_steps.html" aria-current="page"> 
+    <a class="nav-link" href="./first_steps.html"> 
 <span class="menu-text">First steps</span></a>
   </li>  
   <li class="nav-item">
@@ -110,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Server code</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./create_1.html"> 
+    <a class="nav-link active" href="./create_1.html" aria-current="page"> 
 <span class="menu-text">Create an App</span></a>
   </li>  
   <li class="nav-item">
@@ -132,15 +132,22 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#edit-the-input" id="toc-edit-the-input" class="nav-link active" data-scroll-target="#edit-the-input">Edit the input</a></li>
+  <li><a href="#edit-the-output" id="toc-edit-the-output" class="nav-link" data-scroll-target="#edit-the-output">Edit the output</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">First steps</h1>
+<h1 class="title">Creating an app</h1>
 </div>
 
 
@@ -157,21 +164,47 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Open RStudio and if you have not already done so, install the packages <em>shiny</em> and (for later <em>bslib.</em></p>
-<p><img src="images/install-shiny.png" class="img-fluid" alt="install shiny dialogue" width="300"></p>
-<p>To be tidy, it is best to keep your work in a Project, although you can work with separate files.</p>
-<p>Use the <img src="images/project-button.png" class="img-fluid" width="20"> icon in the RStudio menubar to create a new R project in a new directory, and then select a Shiny Application. Give it a sensible name (best to keep it short and meaningful, without spaces). Check the box to open in a new session.</p>
-<p><img src="images/new-project-dialog.png" class="img-fluid" width="300"></p>
-<p>This will create a new folder, containing your project file and a file named <strong>app.R</strong> - this is where you will write your shiny code. You can rename it, but there is no need. If you asked for a new session, app.R will also open in a new RStudio window.</p>
-<p>At first, app.R contains some demo code. There are some comments, then code to load the library shiny, a chunk to define an object <strong>ui</strong> (the user interface), a chunk to define a function called <strong>server (</strong>the code that creates the objects in ui), and a line that uses the shinyApp function using the ui object and the server function.</p>
-<p><img src="images/default-shiny-code.png" class="img-fluid" width="500"></p>
-<p>In this screen shot I have edited the code a bit to fold it up so that you can see these three chunks. All your shiny apps will follow this basic format - load libraries, ui, the server and shinyApp().</p>
-<p>The default code provided is a runnable shiny app, and you can run it using the <img src="images/run-app.png" class="img-fluid" width="87"> button that has appeared at the top of the editor pane. When you do you should see this:</p>
-<p><img src="images/old-faithful.png" class="img-fluid" width="300"></p>
-<p>That’s it - you’ve made a shiny app! Play with the slider to see the graph update.</p>
-<p>The next steps will be to make it do what you want to do instead of showing the default content.</p>
+<p>The easiest way to start creating an app is the use the default one, and replace its content with your own.</p>
+<p>As an example, we will create an app that asks for a file of data, and then draws a scatterplot and reports a regression. You can then play with it to try out different features.</p>
+<p>Before we start, we will need some random data to give the app. Here is some R code you can use to create the data we will begin with - you can paste it into the console:</p>
+<pre><code>library(tidyverse)
+write_csv(tibble(x = rnorm(1000,10,2), y = rnorm(1000,10,2)*.3+.7*x),"random.csv")</code></pre>
+<p>This makes a CSV file in your working directory called <strong>random.csv</strong> with 1000 rows, where <strong>x</strong> is a random value with a mean of 10 and a standard deviation of 2, and <strong>y</strong> is another random value that correlates highly with x.</p>
+<p>Some of what we will do needs <strong>tidyverse</strong>, so we will need to add this line to the top of the <strong>app.R</strong> file.</p>
+<pre><code>library(tidyverse)</code></pre>
+<section id="edit-the-input" class="level2">
+<h2 class="anchored" data-anchor-id="edit-the-input">Edit the input</h2>
+<p>Return to the default <strong>app.R</strong> (or create a new one) and replace the code that created the slider with code to read in a filename. To do this, delete lines 21 to 25 - everything defining the <strong>sliderInput</strong> - and replace it with this:</p>
+<pre><code>          fileInput("file","Data:")</code></pre>
+<p>As you’d expect, this allows the user to Browse to find a file, or to drop a file onto the slot. Notice that both the object’s name and label need to be in quotes.</p>
+</section>
+<section id="edit-the-output" class="level2">
+<h2 class="anchored" data-anchor-id="edit-the-output">Edit the output</h2>
+<p>Delete the lines in <strong>output$distplot</strong> that create <strong>x,</strong> <strong>bins</strong> and the histogram. You should be left with this:</p>
+<pre><code>server &lt;- function(input, output) {
+
+    output$distPlot &lt;- renderPlot({
+    })
+}</code></pre>
+<p>Inside the <strong>renderPlot({…}),</strong> type or paste this code:</p>
+<pre><code>if(!is.null(input$file)){
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+         data|&gt;ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+       }</code></pre>
+<p>When you run the app and drop the random.csv file into the Data slot you should see a scatterplot appear.</p>
+<p>Here is what the four lines do:</p>
+<p>The <strong>if()</strong> line only runs the code once a file has been chosen, to avoid Errors.<br>
+<strong>file</strong> is set to the details of the file that has been selected - it is not the file contents yet though!<br>
+<strong>data</strong> is set to the contents of the file - and as you can see file is an object that contains a component called datapath. <strong>file$datapath</strong> is actually a pointer to the file on your computer.</p>
+<p>The last line draws the scatterplot.</p>
+<p>Whatever is computed by the last line in a function is returned as the result of that function, so the scatterplot is rendered as <strong>distPlot</strong> and shown on the <strong>ui</strong>.</p>
+<p>If you rerun the code that creates random.csv to get new values (maybe edit the weights of x an y?) then you can drop the new file into the Data slot and get a new scatterplot.</p>
+<p>Maybe you could take a moment to edit the title so it does not claim to be Old Faithful Geyser Data.</p>
+<p>This code will work on any csv file that contains columns called x and y, and it is a bit fragile, but it’s your first real shiny app.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -13,6 +13,9 @@ website:
         text: First steps
       - href: ui.qmd
         text: User interface
+      - href: server.qmd
+        text: Server code
+        
 
 format:
   html:

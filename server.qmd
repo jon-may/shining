@@ -1,0 +1,44 @@
+---
+title: "Server Code"
+---
+
+The **server** code for the example only does one thing - it creates the **distPlot** graph using the value you've chosen using the **bins** slider.
+
+Here is the code:
+
+```         
+#### Define server logic required to draw a histogram ----
+server <- function(input, output) {
+
+    output$distPlot <- renderPlot({
+        # generate bins based on input$bins from ui.R
+        x    <- faithful[, 2]
+        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+
+        # draw the histogram with the specified number of bins
+        hist(x, breaks = bins, col = 'darkgray', border = 'white',
+             xlab = 'Waiting time to next eruption (in mins)',
+             main = 'Histogram of waiting times')
+    })
+}
+```
+
+All code in **server** links to the input and output objects by prefixing their names with **input\$** and **output\$**. Here the code creates the **distplot** output object using the **renderPlot()** function upon the code contained in the curly braces {...}.
+
+First, **x** is set to contain column 2 of R's built-in dataframe faithful (try typing **faithful** in the console to see it).
+
+Then **bins** is created as a sequence ranging from the minimum to the maximum value of **x**, with the number of bins defined by the value of the **bins** slider plus 1. Referring to the slider as **input\$bins** lets the code keep it separate from the bins object, which is local to this function.
+
+Finally, a histogram is drawn using the vector **x**, with the breakpoints set to the values of **bins.**
+
+The **renderPlot()** function turns this graphical into the output needed for the plotOutput interface function.
+
+## Reactivity
+
+The whole point of a shiny app is to make the output change when the inputs change, a concept called *reactivity*.
+
+This means that whenever any input object changes, any output object that refers to it is re-evaluated, its code will be run, and the ouptut will change appropriately. In turn, any change to an output object is immediately shown on the **ui.**
+
+Here, any change to the slider means that **input\$bins** takes a new value, and as **output\$distPlot** refers to it, this code will be re-run and a new histogram rendered upon the **ui.**
+
+The shiny engine that does this keeps track of what has changed and what has not, so input objects that have not changed are not re-evaluated. This makes it quite efficient and you do not need to worry about saving the results of complicated operations to save repeating them; the engine does this automatically. For example, if you read in a data file using **inputFile()** and process it, that input and processing only happens once no matter how many times your code accesses the file object or its processed version - until you provide a new data file name.

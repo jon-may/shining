@@ -37,6 +37,8 @@ The graph is created by the **plotOutput()**, which is embedded within the **mai
 
 Both the sidebarLayout and the mainPanel are embedded within a **fluidpage()** call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we'll look at some later, but a fluidpage is a good place to start.
 
+The sections below list the input and output types that you'll need to use. A handy reference [cheat sheet](https://posit.co/wp-content/uploads/2022/10/shiny-1.pdf) is available from Posit.
+
 ## Input objects
 
 The sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:
@@ -67,4 +69,18 @@ The sliderInput() is just one of many different ways of providing user input to 
 
 -   textAreaInput() - like textInput but with a stretchable box to type into
 
+You can find
+
 ## Output objects
+
+The most commonly used output objects are:
+
+-   plotOutput() - to show some graphical output e.g., from ggplot
+
+-   textOutput() - plain text, best for short labels and headings
+
+-   htmlOutput() - a string containing HTML markup, for longer formatted text
+
+-   tableOutput() - presents a dataframe
+
+-   imageOutput() - to show a graphic saved in a file e.g., a logo

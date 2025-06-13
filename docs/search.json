@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "Shining",
     "section": "",
-    "text": "This is a tutorial on creating Shiny apps. It assumes the following:\n\nYou are comfortable using R\nYou have RStudio and R installed\n\nThis tutorial was last updated in June 2025.\nThe tutorial will show you how to create a new shiny app, add objects to the user interface, and define the code to read in a data file and produce some output.\nPlease use the dropdown menu to the left of the page title to navigate."
+    "text": "This is a tutorial on creating Shiny apps. It assumes the following:\n\nYou are comfortable using R\nYou have RStudio and R installed\n\nThis tutorial was last updated in June 2025.\nThe tutorial will show you how to create a new shiny app, add objects to the user interface, and define the code to read in a data file and produce some output.\nPlease use the menu at the top of the page to navigate (it may be a ‘hamburger’ icon)"
   },
   {
     "objectID": "about.html",
@@ -25,20 +25,34 @@
     "href": "ui.html",
     "title": "user interface",
     "section": "",
-    "text": "The ui object in the default app is quite minimal, with a slider and a graph. The code looks more complex because it also includes functions to specify where in the app these two objects appear - the slider is in a sidebar and the graph is in the main panel of the window. There is also a title panel.\nThe slider is created by the sliderInput() and it is embedded within a sidebarPanel() that is part of the sidebarLayout().\nThe parameters passed to the sliderInput() call define the name of the slider (bins), the text to be displayed in the ui (Number of bins:), the minimum and maximum values (1 to 50) and the initial value (30). The name is not shown in the interface but is how the object will be referred to in the server code.\nThe graph is created by the plotOutput(), which is embedded within the mainPanel(). The graph that will be shown is called distPlot, and this will be created in the server code.\nBoth the sidebarLayout and the mainPanel are embedded within a fluidpage() call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we’ll look at some later, but a fluidpage is a good place to start."
+    "text": "The ui object in the default app is quite minimal, with a slider and a graph. The code looks more complex because it also includes functions to specify where in the app these two objects appear - the slider is in a sidebar and the graph is in the main panel of the window. There is also a title panel.\nThe slider is created by the sliderInput() and it is embedded within a sidebarPanel() that is part of the sidebarLayout().\nThe parameters passed to the sliderInput() call define the name of the slider (bins), the text to be displayed in the ui (Number of bins:), the minimum and maximum values (1 to 50) and the initial value (30). The name is not shown in the interface but is how the object will be referred to in the server code.\nThe graph is created by the plotOutput(), which is embedded within the mainPanel(). The graph that will be shown is called distPlot, and this will be created in the server code.\nBoth the sidebarLayout and the mainPanel are embedded within a fluidpage() call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we’ll look at some later, but a fluidpage is a good place to start.\nThe sections below list the input and output types that you’ll need to use. A handy reference cheat sheet is available from Posit."
   },
   {
     "objectID": "ui.html#input-objects",
     "href": "ui.html#input-objects",
     "title": "user interface",
     "section": "Input objects",
-    "text": "Input objects\nThe sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:\n\nactionButton() - a labelled button that will execute some code when clicked\ncheckboxInput() - a single checkbox you can use to turn something on or off\nfileInput() - lets the user upload a data file\nnumericInput() - a dropdown where a number can be chosen (as for a slider)\nradioButtons() - a visible set of mutually exclusive options (best for a small set)\nselectInput() - a dropdown list of mutually exclusive options (best for a longer set)\ntextInput() - lets the user enter text\n\n…and some less common inputs:\n\ncheckboxGroupInput() - a visible set of choices that are not mutually exclusive\ndateInput() - specify a date by typing in the correct format e.g., dd-mm-yyyy\ndateRangeInput() - two linked date inputs\npasswordInput() - like textInput but blobs instead of letters shown\ntextAreaInput() - like textInput but with a stretchable box to type into"
+    "text": "Input objects\nThe sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:\n\nactionButton() - a labelled button that will execute some code when clicked\ncheckboxInput() - a single checkbox you can use to turn something on or off\nfileInput() - lets the user upload a data file\nnumericInput() - a dropdown where a number can be chosen (as for a slider)\nradioButtons() - a visible set of mutually exclusive options (best for a small set)\nselectInput() - a dropdown list of mutually exclusive options (best for a longer set)\ntextInput() - lets the user enter text\n\n…and some less common inputs:\n\ncheckboxGroupInput() - a visible set of choices that are not mutually exclusive\ndateInput() - specify a date by typing in the correct format e.g., dd-mm-yyyy\ndateRangeInput() - two linked date inputs\npasswordInput() - like textInput but blobs instead of letters shown\ntextAreaInput() - like textInput but with a stretchable box to type into\n\nYou can find"
   },
   {
     "objectID": "ui.html#output-objects",
     "href": "ui.html#output-objects",
     "title": "user interface",
     "section": "Output objects",
-    "text": "Output objects"
+    "text": "Output objects\nThe most commonly used output objects are:\n\nplotOutput() - to show some graphical output e.g., from ggplot\ntextOutput() - plain text, best for short labels and headings\nhtmlOutput() - a string containing HTML markup, for longer formatted text\ntableOutput() - presents a dataframe\nimageOutput() - to show a graphic saved in a file e.g., a logo"
+  },
+  {
+    "objectID": "server.html",
+    "href": "server.html",
+    "title": "Server Code",
+    "section": "",
+    "text": "The server code for the example only does one thing - it creates the distPlot graph using the value you’ve chosen using the bins slider.\nHere is the code:\nAll code in server links to the input and output objects by prefixing their names with input$ and output$. Here the code creates the distplot output object using the renderPlot() function upon the code contained in the curly braces {…}.\nFirst, x is set to contain column 2 of R’s built-in dataframe faithful (try typing faithful in the console to see it).\nThen bins is created as a sequence ranging from the minimum to the maximum value of x, with the number of bins defined by the value of the bins slider plus 1. Referring to the slider as input$bins lets the code keep it separate from the bins object, which is local to this function.\nFinally, a histogram is drawn using the vector x, with the breakpoints set to the values of bins.\nThe renderPlot() function turns this graphical into the output needed for the plotOutput interface function."
+  },
+  {
+    "objectID": "server.html#reactivity",
+    "href": "server.html#reactivity",
+    "title": "Server Code",
+    "section": "Reactivity",
+    "text": "Reactivity\nThe whole point of a shiny app is to make the output change when the inputs change, a concept called reactivity.\nThis means that whenever any input object changes, any output object that refers to it is re-evaluated, its code will be run, and the ouptut will change appropriately. In turn, any change to an output object is immediately shown on the ui.\nHere, any change to the slider means that input$bins takes a new value, and as output$distPlot refers to it, this code will be re-run and a new histogram rendered upon the ui.\nThe shiny engine that does this keeps track of what has changed and what has not, so input objects that have not changed are not re-evaluated. This makes it quite efficient and you do not need to worry about saving the results of complicated operations to save repeating them; the engine does this automatically. For example, if you read in a data file using inputFile() and process it, that input and processing only happens once no matter how many times your code accesses the file object or its processed version - until you provide a new data file name."
   }
 ]

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>user interface – Shining</title>
+<title>Server Code – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -102,11 +102,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">First steps</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./ui.html" aria-current="page"> 
+    <a class="nav-link" href="./ui.html"> 
 <span class="menu-text">User interface</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./server.html"> 
+    <a class="nav-link active" href="./server.html" aria-current="page"> 
 <span class="menu-text">Server code</span></a>
   </li>  
 </ul>
@@ -125,8 +125,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#input-objects" id="toc-input-objects" class="nav-link active" data-scroll-target="#input-objects">Input objects</a></li>
-  <li><a href="#output-objects" id="toc-output-objects" class="nav-link" data-scroll-target="#output-objects">Output objects</a></li>
+  <li><a href="#reactivity" id="toc-reactivity" class="nav-link active" data-scroll-target="#reactivity">Reactivity</a></li>
   </ul>
 </nav>
     </div>
@@ -135,7 +134,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">user interface</h1>
+<h1 class="title">Server Code</h1>
 </div>
 
 
@@ -152,66 +151,33 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The ui object in the default app is quite minimal, with a slider and a graph. The code looks more complex because it also includes functions to specify where in the app these two objects appear - the slider is in a sidebar and the graph is in the main panel of the window. There is also a title panel.</p>
-<pre><code># Define UI for application that draws a histogram
-ui &lt;- fluidPage(
+<p>The <strong>server</strong> code for the example only does one thing - it creates the <strong>distPlot</strong> graph using the value you’ve chosen using the <strong>bins</strong> slider.</p>
+<p>Here is the code:</p>
+<pre><code>#### Define server logic required to draw a histogram ----
+server &lt;- function(input, output) {
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
+    output$distPlot &lt;- renderPlot({
+        # generate bins based on input$bins from ui.R
+        x    &lt;- faithful[, 2]
+        bins &lt;- seq(min(x), max(x), length.out = input$bins + 1)
 
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
-)</code></pre>
-<p>The slider is created by the <strong>sliderInput()</strong> and it is embedded within a <strong>sidebarPanel()</strong> that is part of the <strong>sidebarLayout()</strong>.</p>
-<p>The parameters passed to the sliderInput() call define the name of the slider (<em>bins</em>), the text to be displayed in the ui (N<em>umber of bins:</em>), the minimum and maximum values (<em>1</em> to <em>50</em>) and the initial value (<em>30</em>). The name is not shown in the interface but is how the object will be referred to in the server code.</p>
-<p>The graph is created by the <strong>plotOutput()</strong>, which is embedded within the <strong>mainPanel()</strong>. The graph that will be shown is called <em>distPlot</em>, and this will be created in the server code.</p>
-<p>Both the sidebarLayout and the mainPanel are embedded within a <strong>fluidpage()</strong> call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we’ll look at some later, but a fluidpage is a good place to start.</p>
-<p>The sections below list the input and output types that you’ll need to use. A handy reference <a href="https://posit.co/wp-content/uploads/2022/10/shiny-1.pdf">cheat sheet</a> is available from Posit.</p>
-<section id="input-objects" class="level2">
-<h2 class="anchored" data-anchor-id="input-objects">Input objects</h2>
-<p>The sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:</p>
-<ul>
-<li><p>actionButton() - a labelled button that will execute some code when clicked</p></li>
-<li><p>checkboxInput() - a single checkbox you can use to turn something on or off</p></li>
-<li><p>fileInput() - lets the user upload a data file</p></li>
-<li><p>numericInput() - a dropdown where a number can be chosen (as for a slider)</p></li>
-<li><p>radioButtons() - a visible set of mutually exclusive options (best for a small set)</p></li>
-<li><p>selectInput() - a dropdown list of mutually exclusive options (best for a longer set)</p></li>
-<li><p>textInput() - lets the user enter text</p></li>
-</ul>
-<p>…and some less common inputs:</p>
-<ul>
-<li><p>checkboxGroupInput() - a visible set of choices that are not mutually exclusive</p></li>
-<li><p>dateInput() - specify a date by typing in the correct format e.g., dd-mm-yyyy</p></li>
-<li><p>dateRangeInput() - two linked date inputs</p></li>
-<li><p>passwordInput() - like textInput but blobs instead of letters shown</p></li>
-<li><p>textAreaInput() - like textInput but with a stretchable box to type into</p></li>
-</ul>
-<p>You can find</p>
-</section>
-<section id="output-objects" class="level2">
-<h2 class="anchored" data-anchor-id="output-objects">Output objects</h2>
-<p>The most commonly used output objects are:</p>
-<ul>
-<li><p>plotOutput() - to show some graphical output e.g., from ggplot</p></li>
-<li><p>textOutput() - plain text, best for short labels and headings</p></li>
-<li><p>htmlOutput() - a string containing HTML markup, for longer formatted text</p></li>
-<li><p>tableOutput() - presents a dataframe</p></li>
-<li><p>imageOutput() - to show a graphic saved in a file e.g., a logo</p></li>
-</ul>
+        # draw the histogram with the specified number of bins
+        hist(x, breaks = bins, col = 'darkgray', border = 'white',
+             xlab = 'Waiting time to next eruption (in mins)',
+             main = 'Histogram of waiting times')
+    })
+}</code></pre>
+<p>All code in <strong>server</strong> links to the input and output objects by prefixing their names with <strong>input$</strong> and <strong>output$</strong>. Here the code creates the <strong>distplot</strong> output object using the <strong>renderPlot()</strong> function upon the code contained in the curly braces {…}.</p>
+<p>First, <strong>x</strong> is set to contain column 2 of R’s built-in dataframe faithful (try typing <strong>faithful</strong> in the console to see it).</p>
+<p>Then <strong>bins</strong> is created as a sequence ranging from the minimum to the maximum value of <strong>x</strong>, with the number of bins defined by the value of the <strong>bins</strong> slider plus 1. Referring to the slider as <strong>input$bins</strong> lets the code keep it separate from the bins object, which is local to this function.</p>
+<p>Finally, a histogram is drawn using the vector <strong>x</strong>, with the breakpoints set to the values of <strong>bins.</strong></p>
+<p>The <strong>renderPlot()</strong> function turns this graphical into the output needed for the plotOutput interface function.</p>
+<section id="reactivity" class="level2">
+<h2 class="anchored" data-anchor-id="reactivity">Reactivity</h2>
+<p>The whole point of a shiny app is to make the output change when the inputs change, a concept called <em>reactivity</em>.</p>
+<p>This means that whenever any input object changes, any output object that refers to it is re-evaluated, its code will be run, and the ouptut will change appropriately. In turn, any change to an output object is immediately shown on the <strong>ui.</strong></p>
+<p>Here, any change to the slider means that <strong>input$bins</strong> takes a new value, and as <strong>output$distPlot</strong> refers to it, this code will be re-run and a new histogram rendered upon the <strong>ui.</strong></p>
+<p>The shiny engine that does this keeps track of what has changed and what has not, so input objects that have not changed are not re-evaluated. This makes it quite efficient and you do not need to worry about saving the results of complicated operations to save repeating them; the engine does this automatically. For example, if you read in a data file using <strong>inputFile()</strong> and process it, that input and processing only happens once no matter how many times your code accesses the file object or its processed version - until you provide a new data file name.</p>
 
 
 </section>

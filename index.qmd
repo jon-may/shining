@@ -1,0 +1,15 @@
+---
+title: "Shining"
+---
+
+This is a tutorial on creating Shiny apps. It assumes the following:
+
+-   You are comfortable using R
+
+-   You have RStudio and R installed
+
+This tutorial was last updated in June 2025.
+
+The tutorial will show you how to create a new shiny app, add objects to the user interface, and define the code to read in a data file and produce some output.
+
+Please use the dropdown menu to the left of the page title to navigate.

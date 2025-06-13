@@ -1,0 +1,29 @@
+---
+title: "First steps"
+---
+
+Open RStudio and if you have not already done so, install the packages *shiny* and *bslib.*
+
+![](images/install-shiny.png){fig-alt="install shiny dialogue" width="300"}
+
+To be tidy, it is best to keep your work in a Project, although you can work with separate files.
+
+Use the ![](images/project-button.png){width="20"} icon in the RStudio menubar to create a new R project in a new directory, and then select a Shiny Application. Give it a sensible name (best to keep it short and meaningful, without spaces). Check the box to open in a new session.
+
+![](images/new-project-dialog.png){width="300"}
+
+This will create a new folder, containing your project file and a file named **app.R** - this is where you will write your shiny code. You can rename it, but there is no need. If you asked for a new session, app.R will also open in a new RStudio window.
+
+At first, app.R contains some demo code. There are some comments, then code to load the library shiny, a chunk to define an object **ui** (the user interface), a chunk to define a function called **server (**the code that creates the objects in ui), and a line that uses the shinyApp function using the ui object and the server function.
+
+![](images/default-shiny-code.png){width="500"}
+
+In this screen shot I have edited the code a bit to fold it up so that you can see these three chunks. All your shiny apps will follow this basic format - load libraries, ui, the server and shinyApp().
+
+The default code provided is a runnable shiny app, and you can run it using the ![](images/run-app.png){width="87"} button that has appeared at the top of the editor pane. When you do you should see this:
+
+![](images/old-faithful.png){width="300"}
+
+That's it - you've made a shiny app! Play with the slider to see the graph update.
+
+The next steps will be to make it do what you want to do instead of showing the default content.

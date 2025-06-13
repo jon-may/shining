@@ -1,0 +1,44 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Shining",
+    "section": "",
+    "text": "This is a tutorial on creating Shiny apps. It assumes the following:\n\nYou are comfortable using R\nYou have RStudio and R installed\n\nThis tutorial was last updated in June 2025.\nThe tutorial will show you how to create a new shiny app, add objects to the user interface, and define the code to read in a data file and produce some output.\nPlease use the dropdown menu to the left of the page title to navigate."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This tutorial was first written in June 2025 by Jon May, using Quarto, to help Jon Rhodes."
+  },
+  {
+    "objectID": "first_steps.html",
+    "href": "first_steps.html",
+    "title": "First steps",
+    "section": "",
+    "text": "Open RStudio and if you have not already done so, install the packages shiny and bslib.\n\nTo be tidy, it is best to keep your work in a Project, although you can work with separate files.\nUse the  icon in the RStudio menubar to create a new R project in a new directory, and then select a Shiny Application. Give it a sensible name (best to keep it short and meaningful, without spaces). Check the box to open in a new session.\n\nThis will create a new folder, containing your project file and a file named app.R - this is where you will write your shiny code. You can rename it, but there is no need. If you asked for a new session, app.R will also open in a new RStudio window.\nAt first, app.R contains some demo code. There are some comments, then code to load the library shiny, a chunk to define an object ui (the user interface), a chunk to define a function called server (the code that creates the objects in ui), and a line that uses the shinyApp function using the ui object and the server function.\n\nIn this screen shot I have edited the code a bit to fold it up so that you can see these three chunks. All your shiny apps will follow this basic format - load libraries, ui, the server and shinyApp().\nThe default code provided is a runnable shiny app, and you can run it using the  button that has appeared at the top of the editor pane. When you do you should see this:\n\nThat’s it - you’ve made a shiny app! Play with the slider to see the graph update.\nThe next steps will be to make it do what you want to do instead of showing the default content."
+  },
+  {
+    "objectID": "ui.html",
+    "href": "ui.html",
+    "title": "user interface",
+    "section": "",
+    "text": "The ui object in the default app is quite minimal, with a slider and a graph. The code looks more complex because it also includes functions to specify where in the app these two objects appear - the slider is in a sidebar and the graph is in the main panel of the window. There is also a title panel.\nThe slider is created by the sliderInput() and it is embedded within a sidebarPanel() that is part of the sidebarLayout().\nThe parameters passed to the sliderInput() call define the name of the slider (bins), the text to be displayed in the ui (Number of bins:), the minimum and maximum values (1 to 50) and the initial value (30). The name is not shown in the interface but is how the object will be referred to in the server code.\nThe graph is created by the plotOutput(), which is embedded within the mainPanel(). The graph that will be shown is called distPlot, and this will be created in the server code.\nBoth the sidebarLayout and the mainPanel are embedded within a fluidpage() call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we’ll look at some later, but a fluidpage is a good place to start."
+  },
+  {
+    "objectID": "ui.html#input-objects",
+    "href": "ui.html#input-objects",
+    "title": "user interface",
+    "section": "Input objects",
+    "text": "Input objects\nThe sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:\n\nactionButton() - a labelled button that will execute some code when clicked\ncheckboxInput() - a single checkbox you can use to turn something on or off\nfileInput() - lets the user upload a data file\nnumericInput() - a dropdown where a number can be chosen (as for a slider)\nradioButtons() - a visible set of mutually exclusive options (best for a small set)\nselectInput() - a dropdown list of mutually exclusive options (best for a longer set)\ntextInput() - lets the user enter text\n\n…and some less common inputs:\n\ncheckboxGroupInput() - a visible set of choices that are not mutually exclusive\ndateInput() - specify a date by typing in the correct format e.g., dd-mm-yyyy\ndateRangeInput() - two linked date inputs\npasswordInput() - like textInput but blobs instead of letters shown\ntextAreaInput() - like textInput but with a stretchable box to type into"
+  },
+  {
+    "objectID": "ui.html#output-objects",
+    "href": "ui.html#output-objects",
+    "title": "user interface",
+    "section": "Output objects",
+    "text": "Output objects"
+  }
+]

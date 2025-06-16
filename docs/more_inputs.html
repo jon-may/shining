@@ -187,9 +187,7 @@ window.Quarto = {
 
 
 <p>Let’s edit the app so that it creates another variable based on the values of x.</p>
-<p>First add a <strong>numericInput()</strong> to define the weight of x</p>
-<pre><code>numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
-<p>Then add this function definition to the top of the file, before the <strong>ui</strong></p>
+<p>First add this function definition to the top of the file, before the <strong>ui</strong></p>
 <pre><code>makey&lt;-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}</code></pre>
 <p>If you call this function with a vector of numbers x and a weight w, it will return a new vector that is <span class="math display">\[ x.w + e \]</span> where e is random.</p>
 <p>Add a line that calls this function to the data function:</p>

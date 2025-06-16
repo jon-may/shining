@@ -24,15 +24,15 @@ Add a line that calls this function to the data function:
    })
 ```
 
-Next, change the ggplot code by replacing **geom_dist()** with **geom_point()** so that it produces a scatterplot instead of a density plot .
+Next, change the ggplot code by replacing **geom_dist()** with **geom_point()** so that it produces a scatterplot instead of a density plot.
+
+Try it out by clicking ![](images/run-app.png){width="86"}
 
 It is quite boring, so lets specify the colour of the points, using a **radioButtons()** and their shape using **selectInput().** Edit the **sidebarPanel** to include these inputs.
 
 ```         
-sidebarPanel(
            radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
            selectInput("shape","Point Shape:",choices = c(0:8))
-       ),
 ```
 
 To make these have an effect edit the line in **output\$distPlot** that draws the scatterplot so that it becomes:
@@ -44,6 +44,8 @@ To make these have an effect edit the line in **output\$distPlot** that draws th
 ```
 
 Notice that because **selectInput()** provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).
+
+Try it out by clicking ![](images/run-app.png){width="86"}
 
 Finally, add an input to **sidebarPanel** that lets you define the weight instead of it being fixed at 0.6:
 

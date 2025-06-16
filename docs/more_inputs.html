@@ -198,17 +198,17 @@ window.Quarto = {
          data&lt;-data|&gt;mutate(y=makey(x,.6))
       }
    })</code></pre>
-<p>Next, change the ggplot code by replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot .</p>
+<p>Next, change the ggplot code by replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot.</p>
+<p>Try it out by clicking <img src="images/run-app.png" class="img-fluid" width="86"></p>
 <p>It is quite boring, so lets specify the colour of the points, using a <strong>radioButtons()</strong> and their shape using <strong>selectInput().</strong> Edit the <strong>sidebarPanel</strong> to include these inputs.</p>
-<pre><code>sidebarPanel(
-           radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
-           selectInput("shape","Point Shape:",choices = c(0:8))
-       ),</code></pre>
+<pre><code>           radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
+           selectInput("shape","Point Shape:",choices = c(0:8))</code></pre>
 <p>To make these have an effect edit the line in <strong>output$distPlot</strong> that draws the scatterplot so that it becomes:</p>
 <pre><code>         data|&gt;ggplot((aes(x=x, y=y)))+
             geom_point(colour=input$colour,shape=as.numeric(input$shape))+
             theme_minimal()</code></pre>
 <p>Notice that because <strong>selectInput()</strong> provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).</p>
+<p>Try it out by clicking <img src="images/run-app.png" class="img-fluid" width="86"></p>
 <p>Finally, add an input to <strong>sidebarPanel</strong> that lets you define the weight instead of it being fixed at 0.6:</p>
 <pre><code>         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
 <p>and change the last line of the reactive data function:</p>

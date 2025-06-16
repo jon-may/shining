@@ -165,11 +165,11 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>The easiest way to start creating an app is the use the default one, and replace its content with your own.</p>
-<p>As an example, we will create an app that asks for a file of data, and then draws a scatterplot and reports a regression. You can then play with it to try out different features.</p>
+<p>As an example, we will create an app that asks for a file of data, and then draws a distribution of the data and reports some descriptives. You can then play with it to try out different features.</p>
 <p>Before we start, we will need some random data to give the app. Here is some R code you can use to create the data we will begin with - you can paste it into the console:</p>
 <pre><code>library(tidyverse)
-write_csv(tibble(x = rnorm(1000,10,2), y = rnorm(1000,10,2)*.3+.7*x),"random.csv")</code></pre>
-<p>This makes a CSV file in your working directory called <strong>random.csv</strong> with 1000 rows, where <strong>x</strong> is a random value with a mean of 10 and a standard deviation of 2, and <strong>y</strong> is another random value that correlates highly with x.</p>
+write_csv(tibble(x = rnorm(1000,10,2)),"random.csv")</code></pre>
+<p>This makes a CSV file in your working directory called <strong>random.csv</strong> with 1000 rows, where <strong>x</strong> is a random value with a mean of 10 and a standard deviation of 2.</p>
 <p>Some of what we will do needs <strong>tidyverse</strong>, so we will need to add this line to the top of the <strong>app.R</strong> file.</p>
 <pre><code>library(tidyverse)</code></pre>
 <section id="edit-the-input" class="level2">
@@ -190,18 +190,68 @@ write_csv(tibble(x = rnorm(1000,10,2), y = rnorm(1000,10,2)*.3+.7*x),"random.csv
 <pre><code>if(!is.null(input$file)){
          file&lt;-input$file
          data&lt;-read_csv(file$datapath)
-         data|&gt;ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+         data|&gt;ggplot((aes(x=x)))+geom_density()+theme_minimal()
        }</code></pre>
-<p>When you run the app and drop the random.csv file into the Data slot you should see a scatterplot appear.</p>
+<p>When you run the app and drop the random.csv file into the Data slot you should see a density plot appear.</p>
 <p>Here is what the four lines do:</p>
 <p>The <strong>if()</strong> line only runs the code once a file has been chosen, to avoid Errors.<br>
 <strong>file</strong> is set to the details of the file that has been selected - it is not the file contents yet though!<br>
 <strong>data</strong> is set to the contents of the file - and as you can see file is an object that contains a component called datapath. <strong>file$datapath</strong> is actually a pointer to the file on your computer.</p>
-<p>The last line draws the scatterplot.</p>
-<p>Whatever is computed by the last line in a function is returned as the result of that function, so the scatterplot is rendered as <strong>distPlot</strong> and shown on the <strong>ui</strong>.</p>
-<p>If you rerun the code that creates random.csv to get new values (maybe edit the weights of x an y?) then you can drop the new file into the Data slot and get a new scatterplot.</p>
+<p>The last line draws the density plot.</p>
+<p>Whatever is computed by the last line in a function is returned as the result of that function, so the plot is rendered as <strong>distPlot</strong> and shown on the <strong>ui</strong>.</p>
+<p>If you rerun the code that creates random.csv to get new values then you can drop the new file into the Data slot and get a new plot.</p>
 <p>Maybe you could take a moment to edit the title so it does not claim to be Old Faithful Geyser Data.</p>
-<p>This code will work on any csv file that contains columns called x and y, and it is a bit fragile, but it’s your first real shiny app.</p>
+<p>This code will work on any csv file that contains a column of numbers called x, so it is a bit fragile, but it’s your first real shiny app.</p>
+<p>We can add some code to compute and report some descriptive statistics. To display the text on the <strong>ui</strong> you need to add a <strong>textOutput</strong> object, so call it descriptives and put it above the density plot:</p>
+<pre><code>mainPanel(
+           textOutput("descriptives"),
+           plotOutput("distPlot")
+        )</code></pre>
+<p>Now define what this text will be by adding its code to <strong>server</strong>:</p>
+<pre><code>output$descriptives &lt;- renderText({
+       if(!is.null(input$file)){ 
+          file&lt;-input$file
+          data&lt;-read_csv(file$datapath)
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+                )
+          }
+      })</code></pre>
+<p>Try running the app again. You should see the descriptives displayed above the density plot.</p>
+<p>One problem with this code is that lines to read in the code are repeated in both of the server objects. It works but would be effortful to modify to changed the file type, for example. You can economise by putting these two lines into their own object in <strong>server</strong>:</p>
+<pre><code>data&lt;-reactive({
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+   })</code></pre>
+<p>This object reacts to any change in input$file by reading the contents. The other objects in <strong>server</strong> can access it as <strong>data()</strong>, so the full <strong>server</strong> code can now be:</p>
+<pre><code>server &lt;- function(input, output) {
+   
+   data&lt;-reactive({
+      if(!is.null(input$file)){
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+      }
+   })
+   
+    output$distPlot &lt;- renderPlot({
+       if(!is.null(input$file)){
+         data()|&gt;ggplot((aes(x=x)))+
+            geom_density()+
+            theme_minimal()
+       }
+    })
+    
+    output$descriptives &lt;- renderText({
+       if(!is.null(input$file)){ 
+          data&lt;-data()
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+          )
+       }
+    })
+}   </code></pre>
 
 
 </section>

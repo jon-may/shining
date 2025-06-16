@@ -68,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -157,23 +186,23 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Let’s edit the app so that the user can specify the weights of x used to compute y instead of uploading a file.</p>
-<p>First replace the <strong>fileInput()</strong> by a <strong>numericInput()</strong> for x</p>
+<p>Let’s edit the app so that it creates another variable based on the values of x.</p>
+<p>First add a <strong>numericInput()</strong> to define the weight of x</p>
 <pre><code>numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
-<p>Then replace the three lines that read in the file with one line that creates the data on the fly</p>
-<pre><code>data&lt;-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))</code></pre>
-<p>This makes the <strong>output$distplot</strong> re-run every time you change the value for the weight of X.</p>
-<p><img src="images/random.png" class="img-fluid" width="300"></p>
-<p>If it does not work, then check that your server function looks like this:</p>
-<pre><code>server &lt;- function(input, output) {
-    output$distPlot &lt;- renderPlot({
-         data&lt;-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))
-         data|&gt;ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
-    })
-}</code></pre>
+<p>Then add this function definition to the top of the file, before the <strong>ui</strong></p>
+<pre><code>makey&lt;-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}</code></pre>
+<p>If you call this function with a vector of numbers x and a weight w, it will return a new vector that is <span class="math display">\[ x.w + e \]</span> where e is random.</p>
+<p>Add a line that calls this function to the data function:</p>
+<pre><code>  data&lt;-reactive({
+      if(!is.null(input$file)){
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+         data&lt;-data|&gt;mutate(y=makey(x,.6))
+      }
+   })</code></pre>
+<p>Next, change the ggplot code by replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot .</p>
 <p>It is quite boring, so lets specify the colour of the points, using a <strong>radioButtons()</strong> and their shape using <strong>selectInput().</strong> Edit the <strong>sidebarPanel</strong> to include these inputs.</p>
 <pre><code>sidebarPanel(
-           numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5),
            radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
            selectInput("shape","Point Shape:",choices = c(0:8))
        ),</code></pre>
@@ -182,6 +211,63 @@ ul.task-list li input[type="checkbox"] {
             geom_point(colour=input$colour,shape=as.numeric(input$shape))+
             theme_minimal()</code></pre>
 <p>Notice that because <strong>selectInput()</strong> provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).</p>
+<p>Finally, add an input to <strong>sidebarPanel</strong> that lets you define the weight instead of it being fixed at 0.6:</p>
+<pre><code>         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
+<p>and change the last line of the reactive data function:</p>
+<pre><code>        data&lt;-data|&gt;mutate(y=makey(x,input$w))</code></pre>
+<p><img src="images/fullapp.png" class="img-fluid"></p>
+<p>In case you’ve got lost with all those brackets and commas, here is the complete code:</p>
+<pre><code>library(shiny)
+library(tidyverse)
+
+makey&lt;-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}
+
+ui &lt;- fluidPage(
+   titlePanel("My random scatterplot"),
+   sidebarLayout(
+      sidebarPanel(
+         fileInput("file","Data:"),
+         radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
+         selectInput("shape","Point Shape:",choices = c(0:8)),
+         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)
+      ),
+      mainPanel(
+         textOutput("descriptives"),
+         plotOutput("distPlot")
+      )
+   )
+   )
+
+server &lt;- function(input, output) {
+   
+   data&lt;-reactive({
+      if(!is.null(input$file)){
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+         data&lt;-data|&gt;mutate(y=makey(x,input$w))
+      }
+   })
+   
+    output$distPlot &lt;- renderPlot({
+       if(!is.null(input$file)){
+         data()|&gt;ggplot((aes(x=x, y=y)))+
+            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
+            theme_minimal()
+       }
+    })
+    
+    output$descriptives &lt;- renderText({
+       if(!is.null(input$file)){ 
+          data&lt;-data()
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+          )
+       }
+    })
+}
+
+shinyApp(ui = ui, server = server)</code></pre>
 
 
 

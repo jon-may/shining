@@ -2,40 +2,40 @@
 title: "More Inputs"
 ---
 
-Let's edit the app so that the user can specify the weights of x used to compute y instead of uploading a file.
+Let's edit the app so that it creates another variable based on the values of x.
 
-First replace the **fileInput()** by a **numericInput()** for x
+First add a **numericInput()** to define the weight of x
 
 ```         
 numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5)
 ```
 
-Then replace the three lines that read in the file with one line that creates the data on the fly
+Then add this function definition to the top of the file, before the **ui**
 
 ```         
-data<-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))
+makey<-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}
 ```
 
-This makes the **output\$distplot** re-run every time you change the value for the weight of X.
+If you call this function with a vector of numbers x and a weight w, it will return a new vector that is $$ x.w + e $$ where e is random.
 
-![](images/random.png){width="300"}
-
-If it does not work, then check that your server function looks like this:
+Add a line that calls this function to the data function:
 
 ```         
-server <- function(input, output) {
-    output$distPlot <- renderPlot({
-         data<-tibble(x=rnorm(1000,10,2),y=input$x*x+rnorm(1000,10,2)*(1-input$x))
-         data|>ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
-    })
-}
+  data<-reactive({
+      if(!is.null(input$file)){
+         file<-input$file
+         data<-read_csv(file$datapath)
+         data<-data|>mutate(y=makey(x,.6))
+      }
+   })
 ```
+
+Next, change the ggplot code by replacing **geom_dist()** with **geom_point()** so that it produces a scatterplot instead of a density plot .
 
 It is quite boring, so lets specify the colour of the points, using a **radioButtons()** and their shape using **selectInput().** Edit the **sidebarPanel** to include these inputs.
 
 ```         
 sidebarPanel(
-           numericInput("x","Weight for X:", min=0, max=1, step=.05, value=.5),
            radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
            selectInput("shape","Point Shape:",choices = c(0:8))
        ),
@@ -50,3 +50,73 @@ To make these have an effect edit the line in **output\$distPlot** that draws th
 ```
 
 Notice that because **selectInput()** provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).
+
+Finally, add an input to **sidebarPanel** that lets you define the weight instead of it being fixed at 0.6:
+
+```         
+         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)
+```
+
+and change the last line of the reactive data function:
+
+```         
+        data<-data|>mutate(y=makey(x,input$w))
+```
+
+![](images/fullapp.png)
+
+In case you've got lost with all those brackets and commas, here is the complete code:
+
+```         
+library(shiny)
+library(tidyverse)
+
+makey<-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}
+
+ui <- fluidPage(
+   titlePanel("My random scatterplot"),
+   sidebarLayout(
+      sidebarPanel(
+         fileInput("file","Data:"),
+         radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
+         selectInput("shape","Point Shape:",choices = c(0:8)),
+         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)
+      ),
+      mainPanel(
+         textOutput("descriptives"),
+         plotOutput("distPlot")
+      )
+   )
+   )
+
+server <- function(input, output) {
+   
+   data<-reactive({
+      if(!is.null(input$file)){
+         file<-input$file
+         data<-read_csv(file$datapath)
+         data<-data|>mutate(y=makey(x,input$w))
+      }
+   })
+   
+    output$distPlot <- renderPlot({
+       if(!is.null(input$file)){
+         data()|>ggplot((aes(x=x, y=y)))+
+            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
+            theme_minimal()
+       }
+    })
+    
+    output$descriptives <- renderText({
+       if(!is.null(input$file)){ 
+          data<-data()
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+          )
+       }
+    })
+}
+
+shinyApp(ui = ui, server = server)
+```

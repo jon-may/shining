@@ -4,16 +4,16 @@ title: "Creating an app"
 
 The easiest way to start creating an app is the use the default one, and replace its content with your own.
 
-As an example, we will create an app that asks for a file of data, and then draws a scatterplot and reports a regression. You can then play with it to try out different features.
+As an example, we will create an app that asks for a file of data, and then draws a distribution of the data and reports some descriptives. You can then play with it to try out different features.
 
 Before we start, we will need some random data to give the app. Here is some R code you can use to create the data we will begin with - you can paste it into the console:
 
 ```         
 library(tidyverse)
-write_csv(tibble(x = rnorm(1000,10,2), y = rnorm(1000,10,2)*.3+.7*x),"random.csv")
+write_csv(tibble(x = rnorm(1000,10,2)),"random.csv")
 ```
 
-This makes a CSV file in your working directory called **random.csv** with 1000 rows, where **x** is a random value with a mean of 10 and a standard deviation of 2, and **y** is another random value that correlates highly with x.
+This makes a CSV file in your working directory called **random.csv** with 1000 rows, where **x** is a random value with a mean of 10 and a standard deviation of 2.
 
 Some of what we will do needs **tidyverse**, so we will need to add this line to the top of the **app.R** file.
 
@@ -49,11 +49,11 @@ Inside the **renderPlot({...}),** type or paste this code:
 if(!is.null(input$file)){
          file<-input$file
          data<-read_csv(file$datapath)
-         data|>ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+         data|>ggplot((aes(x=x)))+geom_density()+theme_minimal()
        }
 ```
 
-When you run the app and drop the random.csv file into the Data slot you should see a scatterplot appear.
+When you run the app and drop the random.csv file into the Data slot you should see a density plot appear.
 
 Here is what the four lines do:
 
@@ -61,12 +61,79 @@ The **if()** line only runs the code once a file has been chosen, to avoid Error
 **file** is set to the details of the file that has been selected - it is not the file contents yet though!\
 **data** is set to the contents of the file - and as you can see file is an object that contains a component called datapath. **file\$datapath** is actually a pointer to the file on your computer.
 
-The last line draws the scatterplot.
+The last line draws the density plot.
 
-Whatever is computed by the last line in a function is returned as the result of that function, so the scatterplot is rendered as **distPlot** and shown on the **ui**.
+Whatever is computed by the last line in a function is returned as the result of that function, so the plot is rendered as **distPlot** and shown on the **ui**.
 
-If you rerun the code that creates random.csv to get new values (maybe edit the weights of x an y?) then you can drop the new file into the Data slot and get a new scatterplot.
+If you rerun the code that creates random.csv to get new values then you can drop the new file into the Data slot and get a new plot.
 
 Maybe you could take a moment to edit the title so it does not claim to be Old Faithful Geyser Data.
 
-This code will work on any csv file that contains columns called x and y, and it is a bit fragile, but it's your first real shiny app.
+This code will work on any csv file that contains a column of numbers called x, so it is a bit fragile, but it's your first real shiny app.
+
+We can add some code to compute and report some descriptive statistics. To display the text on the **ui** you need to add a **textOutput** object, so call it descriptives and put it above the density plot:
+
+```         
+mainPanel(
+           textOutput("descriptives"),
+           plotOutput("distPlot")
+        )
+```
+
+Now define what this text will be by adding its code to **server**:
+
+```         
+output$descriptives <- renderText({
+       if(!is.null(input$file)){ 
+          file<-input$file
+          data<-read_csv(file$datapath)
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+                )
+          }
+      })
+```
+
+Try running the app again. You should see the descriptives displayed above the density plot.
+
+One problem with this code is that lines to read in the code are repeated in both of the server objects. It works but would be effortful to modify to changed the file type, for example. You can economise by putting these two lines into their own object in **server**:
+
+```
+data<-reactive({
+         file<-input$file
+         data<-read_csv(file$datapath)
+   })
+```   
+
+This object reacts to any change in input$file by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
+
+```
+server <- function(input, output) {
+   
+   data<-reactive({
+      if(!is.null(input$file)){
+         file<-input$file
+         data<-read_csv(file$datapath)
+      }
+   })
+   
+    output$distPlot <- renderPlot({
+       if(!is.null(input$file)){
+         data()|>ggplot((aes(x=x)))+
+            geom_density()+
+            theme_minimal()
+       }
+    })
+    
+    output$descriptives <- renderText({
+       if(!is.null(input$file)){ 
+          data<-data()
+          paste("There are",nrow(data),
+                "observations with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+          )
+       }
+    })
+}   
+```

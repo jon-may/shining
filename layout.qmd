@@ -1,0 +1,89 @@
+---
+title: "Layout"
+---
+
+This page will tell you how to customise the layout of your app using tab panels, cards, and themes.
+
+## Tab panels
+
+Once you start to get more output than will fit easily on a screen, you might want to split it up between different tabs. This can also help a user move between input, processing and output phases of a task by putting the Input and Output objects on different tabs.
+
+Here is a screenshot of part of a tabbed app, with four separate tabs:
+
+![](images/clipboard-1667964615.png)
+
+Tabs are created in the ui using code with the following structure:
+
+```         
+tabsetPanel(type="tabs",  # or type="pills"
+   tabPanel("Name1", ...content...),
+   tabPanel("Name2", ...content...),
+   tabPanel("Name3", ...content...)
+   )
+```
+
+where the content is a series of ui objects. For example, the example app could use this code in mainPanel:
+
+```         
+mainPanel(
+         tabsetPanel(type="pills",
+           tabPane("Descriptives",textOutput("descriptives")),
+           tabPane("Graph",plotOutput("distPlot"))
+         )
+      )
+```
+
+![](images/clipboard-1034412717.png)
+
+## Cards
+
+You can control where ui elements appear on a page using a card layout, provided that you have set
+
+```         
+ui<-page_fillable(
+```
+
+Notionally a shiny app is divided into twelve columns, and you can specify how many columns a card spans. the basic code structure is this:
+
+```         
+layout_columns(
+  card( card_header("Card1"), ...contents... ),
+  card( card_header("Card2"), ...contents... ),
+  card( card_header("Card3"), ...contents... ),
+  card( card_header("Card4"), ...contents... ),
+  card( card_header("Card5"), ...contents... ),
+  col_widths = c(2,5,5, 6,6),
+  row_heights = c(2,5)
+  )
+```
+
+This should put Cards 1 to 3 on the first row, and Cards 4 and 5 on the second row. Card 1 would be 2/12th of the width, Cards 2 and 3 5/12ths. The first row would take up 2/7th of the page, the second row 5/7th.
+
+## Themes
+
+All shiny apps have a Cascading Style Sheet format (.css) and the bslib package allows you to customise it easily.
+
+At the top of the app code, add the line
+```
+library(bslib)
+```
+and then at the start of the ui definition, add a theme:
+ 
+```
+ui <- page_fillable(
+ theme = bs_theme(
+    bootswatch = "darkly",
+     primary = "#007777",
+     success = "#4CF4F4",
+     secondary = "#4C7F7F",
+     danger = "#FF0000",
+    "table-color" = "#4CF4F4",
+    base_font = font_google("Encode Sans Condensed"),
+    font_weight_base = "font-weight-light",
+    headings_font_weight = 300,
+    font_scale = .7
+  ),
+ ```
+
+This loads the preset darkly theme from [bootswatch.com](https://bootswatch.com) and then specifies colours for the standard css categories, adds a colour for tables, and chooses a font from the free [Google font](https://fonts.google.com) collection, setting its size. There is a [huge amount](https://rstudio.github.io/bslib/articles/theming/index.html) that you can do with this.
+

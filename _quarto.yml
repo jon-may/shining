@@ -19,6 +19,8 @@ website:
         text: Create an App
       - href: more_inputs.qmd
         text: More Inputs
+      - href: layout.qmd
+        text: Layouts
       - href: publish.qmd
         text: Publishing
         

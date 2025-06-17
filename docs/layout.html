@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>More Inputs – Shining</title>
+<title>Layout – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -67,35 +67,6 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -142,11 +113,11 @@ window.Quarto = {
 <span class="menu-text">Create an App</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./more_inputs.html" aria-current="page"> 
+    <a class="nav-link" href="./more_inputs.html"> 
 <span class="menu-text">More Inputs</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./layout.html"> 
+    <a class="nav-link active" href="./layout.html" aria-current="page"> 
 <span class="menu-text">Layouts</span></a>
   </li>  
   <li class="nav-item">
@@ -164,15 +135,23 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#tab-panels" id="toc-tab-panels" class="nav-link active" data-scroll-target="#tab-panels">Tab panels</a></li>
+  <li><a href="#cards" id="toc-cards" class="nav-link" data-scroll-target="#cards">Cards</a></li>
+  <li><a href="#themes" id="toc-themes" class="nav-link" data-scroll-target="#themes">Themes</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">More Inputs</h1>
+<h1 class="title">Layout</h1>
 </div>
 
 
@@ -189,88 +168,66 @@ window.Quarto = {
 </header>
 
 
-<p>Let’s edit the app so that it creates another variable based on the values of x.</p>
-<p>First add this function definition to the top of the file, before the <strong>ui</strong></p>
-<pre><code>makey&lt;-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}</code></pre>
-<p>If you call this function with a vector of numbers x and a weight w, it will return a new vector that is <span class="math display">\[ x.w + e \]</span> where e is random.</p>
-<p>Add a line that calls this function to the data function:</p>
-<pre><code>  data&lt;-reactive({
-      if(!is.null(input$file)){
-         file&lt;-input$file
-         data&lt;-read_csv(file$datapath)
-         data&lt;-data|&gt;mutate(y=makey(x,.6))
-      }
-   })</code></pre>
-<p>Next, change the ggplot code by replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot.</p>
-<p>Try it out by clicking <img src="images/run-app.png" class="img-fluid" width="86"></p>
-<p>It is quite boring, so lets specify the colour of the points, using a <strong>radioButtons()</strong> and their shape using <strong>selectInput().</strong> Edit the <strong>sidebarPanel</strong> to include these inputs.</p>
-<pre><code>           radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
-           selectInput("shape","Point Shape:",choices = c(0:8))</code></pre>
-<p>To make these have an effect edit the line in <strong>output$distPlot</strong> that draws the scatterplot so that it becomes:</p>
-<pre><code>         data|&gt;ggplot((aes(x=x, y=y)))+
-            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
-            theme_minimal()</code></pre>
-<p>Notice that because <strong>selectInput()</strong> provides a character string, we have to convert it to numeric for the shape to work (otherwise all the points will be little numbers).</p>
-<p>Try it out by clicking <img src="images/run-app.png" class="img-fluid" width="86"></p>
-<p>Finally, add an input to <strong>sidebarPanel</strong> that lets you define the weight instead of it being fixed at 0.6:</p>
-<pre><code>         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)</code></pre>
-<p>and change the last line of the reactive data function:</p>
-<pre><code>        data&lt;-data|&gt;mutate(y=makey(x,input$w))</code></pre>
-<p><img src="images/fullapp.png" class="img-fluid"></p>
-<p>In case you’ve got lost with all those brackets and commas, here is the complete code:</p>
-<pre><code>library(shiny)
-library(tidyverse)
-
-makey&lt;-function(x,w){w*x+rnorm(length(x),10,2)*(1-w)}
-
-ui &lt;- fluidPage(
-   titlePanel("My random scatterplot"),
-   sidebarLayout(
-      sidebarPanel(
-         fileInput("file","Data:"),
-         radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
-         selectInput("shape","Point Shape:",choices = c(0:8)),
-         numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5)
-      ),
-      mainPanel(
-         textOutput("descriptives"),
-         plotOutput("distPlot")
-      )
-   )
-   )
-
-server &lt;- function(input, output) {
-   
-   data&lt;-reactive({
-      if(!is.null(input$file)){
-         file&lt;-input$file
-         data&lt;-read_csv(file$datapath)
-         data&lt;-data|&gt;mutate(y=makey(x,input$w))
-      }
-   })
-   
-    output$distPlot &lt;- renderPlot({
-       if(!is.null(input$file)){
-         data()|&gt;ggplot((aes(x=x, y=y)))+
-            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
-            theme_minimal()
-       }
-    })
-    
-    output$descriptives &lt;- renderText({
-       if(!is.null(input$file)){ 
-          data&lt;-data()
-          paste("There are",nrow(data),
-                "observations with a mean of",round(mean(data$x),1),
-                "and a standard deviation of",round(sd(data$x),2)
-          )
-       }
-    })
-}
-
-shinyApp(ui = ui, server = server)</code></pre>
+<p>This page will tell you how to customise the layout of your app using tab panels, cards, and themes.</p>
+<section id="tab-panels" class="level2">
+<h2 class="anchored" data-anchor-id="tab-panels">Tab panels</h2>
+<p>Once you start to get more output than will fit easily on a screen, you might want to split it up between different tabs. This can also help a user move between input, processing and output phases of a task by putting the Input and Output objects on different tabs.</p>
+<p>Here is a screenshot of part of a tabbed app, with four separate tabs:</p>
+<p><img src="images/clipboard-1667964615.png" class="img-fluid"></p>
+<p>Tabs are created in the ui using code with the following structure:</p>
+<pre><code>tabsetPanel(type="tabs",  # or type="pills"
+   tabPanel("Name1", ...content...),
+   tabPanel("Name2", ...content...),
+   tabPanel("Name3", ...content...)
+   )</code></pre>
+<p>where the content is a series of ui objects. For example, the example app could use this code in mainPanel:</p>
+<pre><code>mainPanel(
+         tabsetPanel(type="pills",
+           tabPane("Descriptives",textOutput("descriptives")),
+           tabPane("Graph",plotOutput("distPlot"))
+         )
+      )</code></pre>
+<p><img src="images/clipboard-1034412717.png" class="img-fluid"></p>
+</section>
+<section id="cards" class="level2">
+<h2 class="anchored" data-anchor-id="cards">Cards</h2>
+<p>You can control where ui elements appear on a page using a card layout, provided that you have set</p>
+<pre><code>ui&lt;-page_fillable(</code></pre>
+<p>Notionally a shiny app is divided into twelve columns, and you can specify how many columns a card spans. the basic code structure is this:</p>
+<pre><code>layout_columns(
+  card( card_header("Card1"), ...contents... ),
+  card( card_header("Card2"), ...contents... ),
+  card( card_header("Card3"), ...contents... ),
+  card( card_header("Card4"), ...contents... ),
+  card( card_header("Card5"), ...contents... ),
+  col_widths = c(2,5,5, 6,6),
+  row_heights = c(2,5)
+  )</code></pre>
+<p>This should put Cards 1 to 3 on the first row, and Cards 4 and 5 on the second row. Card 1 would be 2/12th of the width, Cards 2 and 3 5/12ths. The first row would take up 2/7th of the page, the second row 5/7th.</p>
+</section>
+<section id="themes" class="level2">
+<h2 class="anchored" data-anchor-id="themes">Themes</h2>
+<p>All shiny apps have a Cascading Style Sheet format (.css) and the bslib package allows you to customise it easily.</p>
+<p>At the top of the app code, add the line</p>
+<pre><code>library(bslib)</code></pre>
+<p>and then at the start of the ui definition, add a theme:</p>
+<pre><code>ui &lt;- page_fillable(
+ theme = bs_theme(
+    bootswatch = "darkly",
+     primary = "#007777",
+     success = "#4CF4F4",
+     secondary = "#4C7F7F",
+     danger = "#FF0000",
+    "table-color" = "#4CF4F4",
+    base_font = font_google("Encode Sans Condensed"),
+    font_weight_base = "font-weight-light",
+    headings_font_weight = 300,
+    font_scale = .7
+  ),</code></pre>
+<p>This loads the preset darkly theme from <a href="https://bootswatch.com">bootswatch.com</a> and then specifies colours for the standard css categories, adds a colour for tables, and chooses a font from the free <a href="https://fonts.google.com">Google font</a> collection, setting its size. There is a <a href="https://rstudio.github.io/bslib/articles/theming/index.html">huge amount</a> that you can do with this.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

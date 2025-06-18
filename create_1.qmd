@@ -71,6 +71,8 @@ Maybe you could take a moment to edit the title so it does not claim to be Old F
 
 This code will work on any csv file that contains a column of numbers called x, so it is a bit fragile, but it's your first real shiny app.
 
+### Add text output
+
 We can add some code to compute and report some descriptive statistics. To display the text on the **ui** you need to add a **textOutput** object, so call it descriptives and put it above the density plot:
 
 ```         
@@ -99,16 +101,16 @@ Try running the app again. You should see the descriptives displayed above the d
 
 One problem with this code is that lines to read in the code are repeated in both of the server objects. It works but would be effortful to modify to changed the file type, for example. You can economise by putting these two lines into their own object in **server**:
 
-```
+```         
 data<-reactive({
          file<-input$file
          data<-read_csv(file$datapath)
    })
-```   
-
-This object reacts to any change in input$file by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
-
 ```
+
+This object reacts to any change in input\$file by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
+
+```         
 server <- function(input, output) {
    
    data<-reactive({
@@ -137,3 +139,35 @@ server <- function(input, output) {
     })
 }   
 ```
+
+### Add HTML output
+
+Text output is OK for short snippets, but to do more complicated formatting you need to create HTML strings which include heading tags such as \<h3\> or \</br\>.
+
+In the **ui**, add a comma to the end of **plotOutput("distPlot")** and underneath, add:
+
+```         
+htmlOutput("regression") 
+```
+
+Then in **server**, add this object:
+
+```         
+output$regression <- renderUI({
+       if(!is.null(input$file)){
+          d<-data()
+          m<-lm(data=d, y ~ x)
+          r<-cor.test(d$x, d$y)
+          
+          HTML(paste("<h3>Correlation: r = ",round(r$estimate,3),"</h3></br></br>",
+                "<h3>Regression: Y = ",round(m$coefficient[1],2)," + X * ",round(m$coefficient[2],2),"</h3>"))
+          
+       }
+    })
+```
+
+This accesses the data that was used for the scatterplot (it will only be recreated when any of the inputs change), and creates a linear regression model in **m** and a correlation in **r**.
+
+The **HTML(...)** command builds a string of HTML markup, containing some markup tags, text, and digs into **m** and **r** to extract the results you want to display, rounding them to three or two decimal places.
+
+-   **NB** you can see what is in **m** and **r** if you make a tibble **d** in the console and run the lines to do the *lm()* and *cor.test()* - look in the Environment pane to unpack the objects you've built. Type **summary(m)** and compare the output with the object's contents.

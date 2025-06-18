@@ -71,7 +71,7 @@ Maybe you could take a moment to edit the title so it does not claim to be Old F
 
 This code will work on any csv file that contains a column of numbers called x, so it is a bit fragile, but it's your first real shiny app.
 
-### Add text output
+## Add text output
 
 We can add some code to compute and report some descriptive statistics. To display the text on the **ui** you need to add a **textOutput** object, so call it descriptives and put it above the density plot:
 
@@ -90,7 +90,7 @@ output$descriptives <- renderText({
           file<-input$file
           data<-read_csv(file$datapath)
           paste("There are",nrow(data),
-                "observations with a mean of",round(mean(data$x),1),
+                "observations of X with a mean of",round(mean(data$x),1),
                 "and a standard deviation of",round(sd(data$x),2)
                 )
           }
@@ -98,6 +98,8 @@ output$descriptives <- renderText({
 ```
 
 Try running the app again. You should see the descriptives displayed above the density plot.
+
+## Reactive objects
 
 One problem with this code is that lines to read in the code are repeated in both of the server objects. It works but would be effortful to modify to changed the file type, for example. You can economise by putting these two lines into their own object in **server**:
 
@@ -107,8 +109,9 @@ data<-reactive({
          data<-read_csv(file$datapath)
    })
 ```
+Reactive objects are ones that do things that not need to appear directly on the **ui**.
 
-This object reacts to any change in input\$file by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
+This *data* object **reacts** to any change in *input\$file* by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
 
 ```         
 server <- function(input, output) {
@@ -132,7 +135,7 @@ server <- function(input, output) {
        if(!is.null(input$file)){ 
           data<-data()
           paste("There are",nrow(data),
-                "observations with a mean of",round(mean(data$x),1),
+                "observations of X with a mean of",round(mean(data$x),1),
                 "and a standard deviation of",round(sd(data$x),2)
           )
        }
@@ -140,7 +143,7 @@ server <- function(input, output) {
 }   
 ```
 
-### Add HTML output
+## Add HTML output
 
 Text output is OK for short snippets, but to do more complicated formatting you need to create HTML strings which include heading tags such as \<h3\> or \</br\>.
 

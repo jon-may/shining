@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Creating an app – Shining</title>
+<title>More outputs – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -110,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Server code</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./create_1.html" aria-current="page"> 
+    <a class="nav-link" href="./create_1.html"> 
 <span class="menu-text">Create an App</span></a>
   </li>  
   <li class="nav-item">
@@ -141,11 +141,7 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#edit-the-input" id="toc-edit-the-input" class="nav-link active" data-scroll-target="#edit-the-input">Edit the input</a></li>
-  <li><a href="#edit-the-output" id="toc-edit-the-output" class="nav-link" data-scroll-target="#edit-the-output">Edit the output</a></li>
-  <li><a href="#add-text-output" id="toc-add-text-output" class="nav-link" data-scroll-target="#add-text-output">Add text output</a></li>
-  <li><a href="#reactive-objects" id="toc-reactive-objects" class="nav-link" data-scroll-target="#reactive-objects">Reactive objects</a></li>
-  <li><a href="#add-html-output" id="toc-add-html-output" class="nav-link" data-scroll-target="#add-html-output">Add HTML output</a></li>
+  <li><a href="#add-html-output" id="toc-add-html-output" class="nav-link active" data-scroll-target="#add-html-output">Add HTML output</a></li>
   </ul>
 </nav>
     </div>
@@ -154,7 +150,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Creating an app</h1>
+<h1 class="title">More outputs</h1>
 </div>
 
 
@@ -171,102 +167,6 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The easiest way to start creating an app is the use the default one, and replace its content with your own.</p>
-<p>As an example, we will create an app that asks for a file of data, and then draws a distribution of the data and reports some descriptives. You can then play with it to try out different features.</p>
-<p>Before we start, we will need some random data to give the app. Here is some R code you can use to create the data we will begin with - you can paste it into the console:</p>
-<pre><code>library(tidyverse)
-write_csv(tibble(x = rnorm(1000,10,2)),"random.csv")</code></pre>
-<p>This makes a CSV file in your working directory called <strong>random.csv</strong> with 1000 rows, where <strong>x</strong> is a random value with a mean of 10 and a standard deviation of 2.</p>
-<p>Some of what we will do needs <strong>tidyverse</strong>, so we will need to add this line to the top of the <strong>app.R</strong> file.</p>
-<pre><code>library(tidyverse)</code></pre>
-<section id="edit-the-input" class="level2">
-<h2 class="anchored" data-anchor-id="edit-the-input">Edit the input</h2>
-<p>Return to the default <strong>app.R</strong> (or create a new one) and replace the code that created the slider with code to read in a filename. To do this, delete lines 21 to 25 - everything defining the <strong>sliderInput</strong> - and replace it with this:</p>
-<pre><code>          fileInput("file","Data:")</code></pre>
-<p>As you’d expect, this allows the user to Browse to find a file, or to drop a file onto the slot. Notice that both the object’s name and label need to be in quotes.</p>
-</section>
-<section id="edit-the-output" class="level2">
-<h2 class="anchored" data-anchor-id="edit-the-output">Edit the output</h2>
-<p>Delete the lines in <strong>output$distplot</strong> that create <strong>x,</strong> <strong>bins</strong> and the histogram. You should be left with this:</p>
-<pre><code>server &lt;- function(input, output) {
-
-    output$distPlot &lt;- renderPlot({
-    })
-}</code></pre>
-<p>Inside the <strong>renderPlot({…}),</strong> type or paste this code:</p>
-<pre><code>if(!is.null(input$file)){
-         file&lt;-input$file
-         data&lt;-read_csv(file$datapath)
-         data|&gt;ggplot((aes(x=x)))+geom_density()+theme_minimal()
-       }</code></pre>
-<p>When you run the app and drop the random.csv file into the Data slot you should see a density plot appear.</p>
-<p>Here is what the four lines do:</p>
-<p>The <strong>if()</strong> line only runs the code once a file has been chosen, to avoid Errors.<br>
-<strong>file</strong> is set to the details of the file that has been selected - it is not the file contents yet though!<br>
-<strong>data</strong> is set to the contents of the file - and as you can see file is an object that contains a component called datapath. <strong>file$datapath</strong> is actually a pointer to the file on your computer.</p>
-<p>The last line draws the density plot.</p>
-<p>Whatever is computed by the last line in a function is returned as the result of that function, so the plot is rendered as <strong>distPlot</strong> and shown on the <strong>ui</strong>.</p>
-<p>If you rerun the code that creates random.csv to get new values then you can drop the new file into the Data slot and get a new plot.</p>
-<p>Maybe you could take a moment to edit the title so it does not claim to be Old Faithful Geyser Data.</p>
-<p>This code will work on any csv file that contains a column of numbers called x, so it is a bit fragile, but it’s your first real shiny app.</p>
-</section>
-<section id="add-text-output" class="level2">
-<h2 class="anchored" data-anchor-id="add-text-output">Add text output</h2>
-<p>We can add some code to compute and report some descriptive statistics. To display the text on the <strong>ui</strong> you need to add a <strong>textOutput</strong> object, so call it descriptives and put it above the density plot:</p>
-<pre><code>mainPanel(
-           textOutput("descriptives"),
-           plotOutput("distPlot")
-        )</code></pre>
-<p>Now define what this text will be by adding its code to <strong>server</strong>:</p>
-<pre><code>output$descriptives &lt;- renderText({
-       if(!is.null(input$file)){ 
-          file&lt;-input$file
-          data&lt;-read_csv(file$datapath)
-          paste("There are",nrow(data),
-                "observations of X with a mean of",round(mean(data$x),1),
-                "and a standard deviation of",round(sd(data$x),2)
-                )
-          }
-      })</code></pre>
-<p>Try running the app again. You should see the descriptives displayed above the density plot.</p>
-</section>
-<section id="reactive-objects" class="level2">
-<h2 class="anchored" data-anchor-id="reactive-objects">Reactive objects</h2>
-<p>One problem with this code is that lines to read in the code are repeated in both of the server objects. It works but would be effortful to modify to changed the file type, for example. You can economise by putting these two lines into their own object in <strong>server</strong>:</p>
-<pre><code>data&lt;-reactive({
-         file&lt;-input$file
-         data&lt;-read_csv(file$datapath)
-   })</code></pre>
-<p>Reactive objects are ones that do things that not need to appear directly on the <strong>ui</strong>.</p>
-<p>This <em>data</em> object <strong>reacts</strong> to any change in <em>input$file</em> by reading the contents. The other objects in <strong>server</strong> can access it as <strong>data()</strong>, so the full <strong>server</strong> code can now be:</p>
-<pre><code>server &lt;- function(input, output) {
-   
-   data&lt;-reactive({
-      if(!is.null(input$file)){
-         file&lt;-input$file
-         data&lt;-read_csv(file$datapath)
-      }
-   })
-   
-    output$distPlot &lt;- renderPlot({
-       if(!is.null(input$file)){
-         data()|&gt;ggplot((aes(x=x)))+
-            geom_density()+
-            theme_minimal()
-       }
-    })
-    
-    output$descriptives &lt;- renderText({
-       if(!is.null(input$file)){ 
-          data&lt;-data()
-          paste("There are",nrow(data),
-                "observations of X with a mean of",round(mean(data$x),1),
-                "and a standard deviation of",round(sd(data$x),2)
-          )
-       }
-    })
-}   </code></pre>
-</section>
 <section id="add-html-output" class="level2">
 <h2 class="anchored" data-anchor-id="add-html-output">Add HTML output</h2>
 <p>Text output is OK for short snippets, but to do more complicated formatting you need to create HTML strings which include heading tags such as &lt;h3&gt; or &lt;/br&gt;.</p>

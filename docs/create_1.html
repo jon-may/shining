@@ -115,7 +115,11 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./more_inputs.html"> 
-<span class="menu-text">More Inputs</span></a>
+<span class="menu-text">Inputs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./more_outputs.html"> 
+<span class="menu-text">Outputs</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./layout.html"> 
@@ -145,7 +149,6 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#edit-the-output" id="toc-edit-the-output" class="nav-link" data-scroll-target="#edit-the-output">Edit the output</a></li>
   <li><a href="#add-text-output" id="toc-add-text-output" class="nav-link" data-scroll-target="#add-text-output">Add text output</a></li>
   <li><a href="#reactive-objects" id="toc-reactive-objects" class="nav-link" data-scroll-target="#reactive-objects">Reactive objects</a></li>
-  <li><a href="#add-html-output" id="toc-add-html-output" class="nav-link" data-scroll-target="#add-html-output">Add HTML output</a></li>
   </ul>
 </nav>
     </div>
@@ -266,29 +269,6 @@ write_csv(tibble(x = rnorm(1000,10,2)),"random.csv")</code></pre>
        }
     })
 }   </code></pre>
-</section>
-<section id="add-html-output" class="level2">
-<h2 class="anchored" data-anchor-id="add-html-output">Add HTML output</h2>
-<p>Text output is OK for short snippets, but to do more complicated formatting you need to create HTML strings which include heading tags such as &lt;h3&gt; or &lt;/br&gt;.</p>
-<p>In the <strong>ui</strong>, add a comma to the end of <strong>plotOutput(“distPlot”)</strong> and underneath, add:</p>
-<pre><code>htmlOutput("regression") </code></pre>
-<p>Then in <strong>server</strong>, add this object:</p>
-<pre><code>output$regression &lt;- renderUI({
-       if(!is.null(input$file)){
-          d&lt;-data()
-          m&lt;-lm(data=d, y ~ x)
-          r&lt;-cor.test(d$x, d$y)
-          
-          HTML(paste("&lt;h3&gt;Correlation: r = ",round(r$estimate,3),"&lt;/h3&gt;&lt;/br&gt;&lt;/br&gt;",
-                "&lt;h3&gt;Regression: Y = ",round(m$coefficient[1],2)," + X * ",round(m$coefficient[2],2),"&lt;/h3&gt;"))
-          
-       }
-    })</code></pre>
-<p>This accesses the data that was used for the scatterplot (it will only be recreated when any of the inputs change), and creates a linear regression model in <strong>m</strong> and a correlation in <strong>r</strong>.</p>
-<p>The <strong>HTML(…)</strong> command builds a string of HTML markup, containing some markup tags, text, and digs into <strong>m</strong> and <strong>r</strong> to extract the results you want to display, rounding them to three or two decimal places.</p>
-<ul>
-<li><strong>NB</strong> you can see what is in <strong>m</strong> and <strong>r</strong> if you make a tibble <strong>d</strong> in the console and run the lines to do the <em>lm()</em> and <em>cor.test()</em> - look in the Environment pane to unpack the objects you’ve built. Type <strong>summary(m)</strong> and compare the output with the object’s contents.</li>
-</ul>
 
 
 </section>

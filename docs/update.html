@@ -223,13 +223,15 @@ window.Quarto = {
 <p>When this is called with a dataframe and two variables’ names, it will return a smaller dataframe with just the two variables whose names ‘contain’ the target names, renamed <em>x</em> and <em>y</em>.</p>
 <p>Adding this line to the start of each output object will make it run on just the selected x and y variables:</p>
 <pre><code>        data&lt;-getxy(data(), input$xvar, input$yvar) </code></pre>
-<p>The output$descriptives object currently just refers to X, so improve it by replacing X with the *input<span class="math inline">\(xvar* value:
-```
-                "observations of ",input\)</span>xvar,” with a mean of”,round(mean(data$x),1),</p>
-<pre><code>
-To test it, create a file with four columns, using this code in the console:
-</code></pre>
-<p>library(tidyverse) # if it is not already loaded d&lt;-tibble(arsenal=rnorm(1000,10,2), bolton=rnorm(1000,10,2), chelsea=rnorm(1000,10,2), derby=0.6<em>arsenal+0.4</em>bolton) write_csv(d,“4vars.csv”) ```</p>
+<p>The <strong>output$descriptives</strong> object currently just refers to X, so improve it by replacing X with the <em>input$xvar</em> value:</p>
+<pre><code>                "observations of ",input$xvar," with a mean of",round(mean(data\$x),1),</code></pre>
+<p>To test it, create a file with four columns, using this code in the console:</p>
+<pre><code>library(tidyverse)\# if it is not already loaded 
+d&lt;-tibble(arsenal=rnorm(1000,10,2), 
+          bolton=rnorm(1000,10,2), 
+          chelsea=rnorm(1000,10,2), 
+          derby=0.6*arsenal+0.4*bolton) 
+write_csv(d,"4vars.csv") </code></pre>
 <p>The first three columns are random, but the fourth is made of <span class="math display">\[
 0.6 * arsenal + 0.4 * chelsea.
 \]</span></p>
@@ -237,6 +239,83 @@ To test it, create a file with four columns, using this code in the console:
 <p>Notice also that the name of the x variable is reported in the descriptives text above the plot.</p>
 <p><img src="images/clipboard-798874799.png" class="img-fluid"></p>
 <p>This is not just a shiny app now, it is a stats package! It should work on any CSV file that contains at least two numeric columns, though you will get errors if you choose a column that is not numeric. Give it a try.</p>
+<pre><code># complete code, with unnecessary lines deleted
+library(shiny)
+library(tidyverse)
+
+getxy&lt;-function(d,x,y){   d |&gt; select(x=contains(x), y=contains(y)) }
+
+ui &lt;- fluidPage(
+   titlePanel("My random scatterplot"),
+   sidebarLayout(
+      sidebarPanel(
+         fileInput("file","Data:"),
+         radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
+         selectInput("shape","Point Shape:",choices = c(0:8)),
+         selectInput("xvar","X axis:",choices = "none"),
+         selectInput("yvar","Y axis:",choices = "none"),
+         
+      ),
+      mainPanel(
+         textOutput("descriptives"),
+         plotOutput("distPlot"),
+         htmlOutput("regression")
+      )
+   )
+   )
+
+
+server &lt;- function(input, output, session) {
+
+   observe({
+      if(!is.null(input$file)){
+         d&lt;-data()
+         updateSelectInput(inputId= "xvar", choices = variable.names(d))
+         updateSelectInput(inputId= "yvar", choices = variable.names(d))
+      }
+   })
+ 
+   data&lt;-reactive({
+      if(!is.null(input$file)){
+         file&lt;-input$file
+         data&lt;-read_csv(file$datapath)
+      }
+   })
+   
+    output$distPlot &lt;- renderPlot({
+       if(!is.null(input$file)){
+         data&lt;-getxy(data(), input$xvar, input$yvar) 
+         data |&gt;ggplot((aes(x=x, y=y)))+
+            geom_point(colour=input$colour,shape=as.numeric(input$shape))+
+            theme_minimal()
+       }
+    })
+    
+    output$descriptives &lt;- renderText({
+       if(!is.null(input$file) ){
+          data&lt;- getxy(data(), input$xvar, input$yvar)
+          paste("There are",nrow(data),
+                "observations of ",input$xvar," with a mean of",round(mean(data$x),1),
+                "and a standard deviation of",round(sd(data$x),2)
+          )
+       }
+    })
+    
+    output$regression &lt;- renderUI({
+       if(!is.null(input$file)){
+          data&lt;- getxy(data(), input$xvar, input$yvar)
+          
+          m&lt;-lm(data=data, y ~ x)
+          r&lt;-cor.test(data$x, data$y)
+          
+          HTML(paste("&lt;h3&gt;Correlation: r = ",round(r$estimate,3),"&lt;/h3&gt;",
+                "&lt;h3&gt;Regression: ",input$yvar," = ",round(m$coefficient[1],2),
+                " + ",input$xvar," * ",round(m$coefficient[2],2),"&lt;/h3&gt;"))
+       }
+    })
+}
+
+shinyApp(ui = ui, server = server)</code></pre>
 
 
 

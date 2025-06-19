@@ -64,12 +64,14 @@ This should put Cards 1 to 3 on the first row, and Cards 4 and 5 on the second r
 All shiny apps have a Cascading Style Sheet format (.css) and the bslib package allows you to customise it easily.
 
 At the top of the app code, add the line
-```
+
+```         
 library(bslib)
 ```
+
 and then at the start of the ui definition, add a theme:
- 
-```
+
+```         
 ui <- page_fillable(
  theme = bs_theme(
     bootswatch = "darkly",
@@ -83,7 +85,6 @@ ui <- page_fillable(
     headings_font_weight = 300,
     font_scale = .7
   ),
- ```
+```
 
 This loads the preset darkly theme from [bootswatch.com](https://bootswatch.com) and then specifies colours for the standard css categories, adds a colour for tables, and chooses a font from the free [Google font](https://fonts.google.com) collection, setting its size. There is a [huge amount](https://rstudio.github.io/bslib/articles/theming/index.html) that you can do with this.
-

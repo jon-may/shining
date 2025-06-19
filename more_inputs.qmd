@@ -24,7 +24,11 @@ Add a line that calls this function to the data function:
    })
 ```
 
-Next, change the ggplot code by replacing **geom_dist()** with **geom_point()** so that it produces a scatterplot instead of a density plot.
+Next, change the ggplot code by adding a *y* aesthetic and replacing **geom_dist()** with **geom_point()** so that it produces a scatterplot instead of a density plot.
+
+```         
+         data|>ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()
+```
 
 Try it out by clicking ![](images/run-app.png){width="86"}
 
@@ -35,7 +39,7 @@ It is quite boring, so lets specify the colour of the points, using a **radioBut
            selectInput("shape","Point Shape:",choices = c(0:8))
 ```
 
-To make these have an effect edit the line in **output\$distPlot** that draws the scatterplot so that it becomes:
+To make these have an effect edit the **geom_point** in **output\$distPlot** that draws the scatterplot so that it becomes:
 
 ```         
          data|>ggplot((aes(x=x, y=y)))+
@@ -97,7 +101,8 @@ server <- function(input, output) {
    
     output$distPlot <- renderPlot({
        if(!is.null(input$file)){
-         data()|>ggplot((aes(x=x, y=y)))+
+         data<-data()
+         data|>ggplot((aes(x=x, y=y)))+
             geom_point(colour=input$colour,shape=as.numeric(input$shape))+
             theme_minimal()
        }
@@ -107,7 +112,7 @@ server <- function(input, output) {
        if(!is.null(input$file)){ 
           data<-data()
           paste("There are",nrow(data),
-                "observations with a mean of",round(mean(data$x),1),
+                "observations of X with a mean of",round(mean(data$x),1),
                 "and a standard deviation of",round(sd(data$x),2)
           )
        }

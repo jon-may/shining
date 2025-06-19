@@ -17,9 +17,9 @@ Then in **server**, add this object:
 ```         
 output$regression <- renderUI({
        if(!is.null(input$file)){
-          d<-data()
-          m<-lm(data=d, y ~ x)
-          r<-cor.test(d$x, d$y)
+          data<-data()
+          m<-lm(data=data, y ~ x)
+          r<-cor.test(data$x, data$y)
           
           HTML(paste("<h3>Correlation: r = ",round(r$estimate,3),"</h3></br></br>",
                 "<h3>Regression: Y = ",round(m$coefficient[1],2)," + X * ",round(m$coefficient[2],2),"</h3>"))

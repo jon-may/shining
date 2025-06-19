@@ -109,6 +109,7 @@ data<-reactive({
          data<-read_csv(file$datapath)
    })
 ```
+
 Reactive objects are ones that do things that not need to appear directly on the **ui**.
 
 This *data* object **reacts** to any change in *input\$file* by reading the contents. The other objects in **server** can access it as **data()**, so the full **server** code can now be:
@@ -125,9 +126,8 @@ server <- function(input, output) {
    
     output$distPlot <- renderPlot({
        if(!is.null(input$file)){
-         data()|>ggplot((aes(x=x)))+
-            geom_density()+
-            theme_minimal()
+         data<-data()
+         data|>ggplot((aes(x=x)))+geom_density()+theme_minimal()
        }
     })
     
@@ -142,5 +142,3 @@ server <- function(input, output) {
     })
 }   
 ```
-
-

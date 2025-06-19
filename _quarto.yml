@@ -21,6 +21,8 @@ website:
         text: Inputs
       - href: more_outputs.qmd
         text: Outputs
+      - href: update.qmd
+        text: Updating
       - href: layout.qmd
         text: Layouts
       - href: publish.qmd

@@ -151,6 +151,10 @@ window.Quarto = {
 <span class="menu-text">Outputs</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./update.html"> 
+<span class="menu-text">Updating</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="./layout.html"> 
 <span class="menu-text">Layouts</span></a>
   </li>  
@@ -206,12 +210,13 @@ window.Quarto = {
          data&lt;-data|&gt;mutate(y=makey(x,.6))
       }
    })</code></pre>
-<p>Next, change the ggplot code by replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot.</p>
+<p>Next, change the ggplot code by adding a <em>y</em> aesthetic and replacing <strong>geom_dist()</strong> with <strong>geom_point()</strong> so that it produces a scatterplot instead of a density plot.</p>
+<pre><code>         data|&gt;ggplot((aes(x=x, y=y)))+geom_point()+theme_minimal()</code></pre>
 <p>Try it out by clicking <img src="images/run-app.png" class="img-fluid" width="86"></p>
 <p>It is quite boring, so lets specify the colour of the points, using a <strong>radioButtons()</strong> and their shape using <strong>selectInput().</strong> Edit the <strong>sidebarPanel</strong> to include these inputs.</p>
 <pre><code>           radioButtons("colour","Point colour:",c("red","blue","green","yellow")),
            selectInput("shape","Point Shape:",choices = c(0:8))</code></pre>
-<p>To make these have an effect edit the line in <strong>output$distPlot</strong> that draws the scatterplot so that it becomes:</p>
+<p>To make these have an effect edit the <strong>geom_point</strong> in <strong>output$distPlot</strong> that draws the scatterplot so that it becomes:</p>
 <pre><code>         data|&gt;ggplot((aes(x=x, y=y)))+
             geom_point(colour=input$colour,shape=as.numeric(input$shape))+
             theme_minimal()</code></pre>
@@ -256,7 +261,8 @@ server &lt;- function(input, output) {
    
     output$distPlot &lt;- renderPlot({
        if(!is.null(input$file)){
-         data()|&gt;ggplot((aes(x=x, y=y)))+
+         data&lt;-data()
+         data|&gt;ggplot((aes(x=x, y=y)))+
             geom_point(colour=input$colour,shape=as.numeric(input$shape))+
             theme_minimal()
        }
@@ -266,7 +272,7 @@ server &lt;- function(input, output) {
        if(!is.null(input$file)){ 
           data&lt;-data()
           paste("There are",nrow(data),
-                "observations with a mean of",round(mean(data$x),1),
+                "observations of X with a mean of",round(mean(data$x),1),
                 "and a standard deviation of",round(sd(data$x),2)
           )
        }

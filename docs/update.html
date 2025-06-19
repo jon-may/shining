@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>user interface – Shining</title>
+<title>Updating inputs – Shining</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -68,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -102,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">First steps</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./ui.html" aria-current="page"> 
+    <a class="nav-link" href="./ui.html"> 
 <span class="menu-text">User interface</span></a>
   </li>  
   <li class="nav-item">
@@ -122,7 +151,7 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Outputs</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./update.html"> 
+    <a class="nav-link active" href="./update.html" aria-current="page"> 
 <span class="menu-text">Updating</span></a>
   </li>  
   <li class="nav-item">
@@ -144,22 +173,15 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#input-objects" id="toc-input-objects" class="nav-link active" data-scroll-target="#input-objects">Input objects</a></li>
-  <li><a href="#output-objects" id="toc-output-objects" class="nav-link" data-scroll-target="#output-objects">Output objects</a></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">user interface</h1>
+<h1 class="title">Updating inputs</h1>
 </div>
 
 
@@ -176,69 +198,47 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>The ui object in the default app is quite minimal, with a slider and a graph. The code looks more complex because it also includes functions to specify where in the app these two objects appear - the slider is in a sidebar and the graph is in the main panel of the window. There is also a title panel.</p>
-<pre><code># Define UI for application that draws a histogram
-ui &lt;- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
-)</code></pre>
-<p>The slider is created by the <strong>sliderInput()</strong> and it is embedded within a <strong>sidebarPanel()</strong> that is part of the <strong>sidebarLayout()</strong>.</p>
-<p>The parameters passed to the sliderInput() call define the name of the slider (<em>bins</em>), the text to be displayed in the ui (N<em>umber of bins:</em>), the minimum and maximum values (<em>1</em> to <em>50</em>) and the initial value (<em>30</em>). The name is not shown in the interface but is how the object will be referred to in the server code.</p>
-<p>The graph is created by the <strong>plotOutput()</strong>, which is embedded within the <strong>mainPanel()</strong>. The graph that will be shown is called <em>distPlot</em>, and this will be created in the server code.</p>
-<p>Both the sidebarLayout and the mainPanel are embedded within a <strong>fluidpage()</strong> call. A fluidpage is a layout that changes as the window is resized. If you have the app running, try making it narrower - when it gets too narrow, the sidebar will be moved above the main panel. There are many other ways of arranging the ui, and we’ll look at some later, but a fluidpage is a good place to start.</p>
-<p>The sections below list the input and output types that you’ll need to use. A handy reference <a href="https://posit.co/wp-content/uploads/2022/10/shiny-1.pdf">cheat sheet</a> is available from Posit.</p>
-<section id="input-objects" class="level2">
-<h2 class="anchored" data-anchor-id="input-objects">Input objects</h2>
-<p>The sliderInput() is just one of many different ways of providing user input to the app. Here is a list of other commonly used inputs:</p>
-<ul>
-<li><p>actionButton() - a labelled button that will execute some code when clicked</p></li>
-<li><p>checkboxInput() - a single checkbox you can use to turn something on or off</p></li>
-<li><p>fileInput() - lets the user upload a data file</p></li>
-<li><p>numericInput() - a dropdown where a number can be chosen (as for a slider)</p></li>
-<li><p>radioButtons() - a visible set of mutually exclusive options (best for a small set)</p></li>
-<li><p>selectInput() - a dropdown list of mutually exclusive options (best for a longer set)</p></li>
-<li><p>textInput() - lets the user enter text</p></li>
-</ul>
-<p>…and some less common inputs:</p>
-<ul>
-<li><p>checkboxGroupInput() - a visible set of choices that are not mutually exclusive</p></li>
-<li><p>dateInput() - specify a date by typing in the correct format e.g., dd-mm-yyyy</p></li>
-<li><p>dateRangeInput() - two linked date inputs</p></li>
-<li><p>passwordInput() - like textInput but blobs instead of letters shown</p></li>
-<li><p>textAreaInput() - like textInput but with a stretchable box to type into</p></li>
-</ul>
-<p>You can find</p>
-</section>
-<section id="output-objects" class="level2">
-<h2 class="anchored" data-anchor-id="output-objects">Output objects</h2>
-<p>The most commonly used output objects are:</p>
-<ul>
-<li><p>plotOutput() - to show some graphical output e.g., from ggplot</p></li>
-<li><p>textOutput() - plain text, best for short labels and headings</p></li>
-<li><p>htmlOutput() - a string containing HTML markup, for longer formatted text</p></li>
-<li><p>tableOutput() - presents a dataframe</p></li>
-<li><p>imageOutput() - to show a graphic saved in a file e.g., a logo</p></li>
-</ul>
+<p>The app would be more useful if it worked on any file with many variables instead of making up y values for a set of x values.</p>
+<p>It is possible to create a <strong>selectInput</strong> object that lets the user choose the variables, using an <strong>updateSelectInput</strong> command.</p>
+<p>Add two <strong>selectInput</strong> objects to the <strong>sidebarPanel</strong>, and comment out the <strong>numericInput</strong> (as we no longer will need it):</p>
+<pre><code>       #numericInput("w","Weight for X:", min=0, max=1, step=.05, value=.5),
+         selectInput("xvar","X axis:",choices = "none"),
+         selectInput("yvar","Y axis:",choices = "none"),</code></pre>
+<p>These will allow the user to select which variables to be used as X and Y, but to begin with the option list will just include the word “none”. The app will need to update these objects once a file has been supplied. To do this, add this object to the <strong>server</strong> code:</p>
+<pre><code>  observe({
+      if(!is.null(input$file)){
+         d&lt;-data()
+         updateSelectInput(inputId= "xvar", choices = variable.names(d))
+         updateSelectInput(inputId= "yvar", choices = variable.names(d))
+      }
+   })</code></pre>
+<p>An <strong>observe</strong> object is like a <strong>reactive</strong> object but does not need to be called anywhere; it executes its code automatically when any inputs that it contains change. When a file is supplied to the app, this will read it, and change the choices of the <em>xvar</em> and <em>yvar</em> <strong>selectInput</strong> objects to be a list of the variable names in the file.</p>
+<p>To make it work, a <em>session</em> parameter needs to be added to the <strong>server</strong> function, so that it becomes:</p>
+<pre><code>server &lt;- function(input, output, session) {</code></pre>
+<p>The app no longer needs to create y values, so in the <strong>server</strong>’s <strong>data</strong> function, comment out this line:</p>
+<pre><code>         # data&lt;-data|&gt;mutate(y=makey(x,input$w))</code></pre>
+<p>When the user has chosen an x and y variable, the app should select these from the data and use them to draw the scatterplot and compute the statistics.</p>
+<p>Add a function to do this to the top of the file, underneath the <em>makey</em> definition:</p>
+<pre><code>getxy&lt;-function(d,x,y){   d |&gt; select(x=contains(x), y=contains(y)) }</code></pre>
+<p>When this is called with a dataframe and two variables’ names, it will return a smaller dataframe with just the two variables whose names ‘contain’ the target names, renamed <em>x</em> and <em>y</em>.</p>
+<p>Adding this line to the start of each output object will make it run on just the selected x and y variables:</p>
+<pre><code>        data&lt;-getxy(data(), input$xvar, input$yvar) </code></pre>
+<p>The output$descriptives object currently just refers to X, so improve it by replacing X with the *input<span class="math inline">\(xvar* value:
+```
+                "observations of ",input\)</span>xvar,” with a mean of”,round(mean(data$x),1),</p>
+<pre><code>
+To test it, create a file with four columns, using this code in the console:
+</code></pre>
+<p>library(tidyverse) # if it is not already loaded d&lt;-tibble(arsenal=rnorm(1000,10,2), bolton=rnorm(1000,10,2), chelsea=rnorm(1000,10,2), derby=0.6<em>arsenal+0.4</em>bolton) write_csv(d,“4vars.csv”) ```</p>
+<p>The first three columns are random, but the fourth is made of <span class="math display">\[
+0.6 * arsenal + 0.4 * chelsea.
+\]</span></p>
+<p>If you run the app and give it the 4vars file, you should be able to choose the variables that correspond to x and y. The first three will all be unrelated, with minimal correlations, but when <em>derby</em> is the <em>y</em> variable, and <em>arsenal</em> is the <em>x</em> variable, the coefficient should be close to 0.6, and if <em>bolton</em> is the <em>x</em> variable, the coefficient should be close to 0.4</p>
+<p>Notice also that the name of the x variable is reported in the descriptives text above the plot.</p>
+<p><img src="images/clipboard-798874799.png" class="img-fluid"></p>
+<p>This is not just a shiny app now, it is a stats package! It should work on any CSV file that contains at least two numeric columns, though you will get errors if you choose a column that is not numeric. Give it a try.</p>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

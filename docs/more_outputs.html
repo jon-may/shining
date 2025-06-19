@@ -122,6 +122,10 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Outputs</span></a>
   </li>  
   <li class="nav-item">
+    <a class="nav-link" href="./update.html"> 
+<span class="menu-text">Updating</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="./layout.html"> 
 <span class="menu-text">Layouts</span></a>
   </li>  
@@ -179,9 +183,9 @@ ul.task-list li input[type="checkbox"] {
 <p>Then in <strong>server</strong>, add this object:</p>
 <pre><code>output$regression &lt;- renderUI({
        if(!is.null(input$file)){
-          d&lt;-data()
-          m&lt;-lm(data=d, y ~ x)
-          r&lt;-cor.test(d$x, d$y)
+          data&lt;-data()
+          m&lt;-lm(data=data, y ~ x)
+          r&lt;-cor.test(data$x, data$y)
           
           HTML(paste("&lt;h3&gt;Correlation: r = ",round(r$estimate,3),"&lt;/h3&gt;&lt;/br&gt;&lt;/br&gt;",
                 "&lt;h3&gt;Regression: Y = ",round(m$coefficient[1],2)," + X * ",round(m$coefficient[2],2),"&lt;/h3&gt;"))
